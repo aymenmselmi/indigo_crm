@@ -174,6 +174,9 @@ const OpportunityForm: React.FC<OpportunityFormProps> = ({
       const payload = {
         ...formData,
         amount: formData.amount ? parseFloat(formData.amount) : null,
+        expectedCloseDate: formData.expectedCloseDate || null,
+        description: formData.description || null,
+        notes: formData.notes || null,
       };
 
       if (mode === 'create') {

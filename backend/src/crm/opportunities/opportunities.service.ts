@@ -62,25 +62,42 @@ export class OpportunityService {
   }
 
   async create(data: Partial<Opportunity>) {
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const opportunity = repo.create({
-      ...data,
-      tenantId: orgId,
-    });
-    return repo.save(opportunity);
+      const opportunity = repo.create({
+        ...data,
+        tenantId: orgId,
+      });
+      
+      this.logger.debug(`Creating opportunity: ${JSON.stringify(opportunity)}`);
+      const saved = await repo.save(opportunity);
+      this.logger.debug(`Opportunity created successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error creating opportunity: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async update(id: string, data: Partial<Opportunity>) {
-    const existing = await this.findById(id);
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const existing = await this.findById(id);
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const updated = Object.assign(existing, data);
-    return repo.save(updated);
+      const updated = Object.assign(existing, data);
+      this.logger.debug(`Updating opportunity ${id}: ${JSON.stringify(updated)}`);
+      const saved = await repo.save(updated);
+      this.logger.debug(`Opportunity updated successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error updating opportunity: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async delete(id: string) {

@@ -63,25 +63,42 @@ export class ContactService {
   }
 
   async create(data: Partial<Contact>) {
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const contact = repo.create({
-      ...data,
-      tenantId: orgId,
-    });
-    return repo.save(contact);
+      const contact = repo.create({
+        ...data,
+        tenantId: orgId,
+      });
+      
+      this.logger.debug(`Creating contact: ${JSON.stringify(contact)}`);
+      const saved = await repo.save(contact);
+      this.logger.debug(`Contact created successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error creating contact: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async update(id: string, data: Partial<Contact>) {
-    const existing = await this.findById(id);
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const existing = await this.findById(id);
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const updated = Object.assign(existing, data);
-    return repo.save(updated);
+      const updated = Object.assign(existing, data);
+      this.logger.debug(`Updating contact ${id}: ${JSON.stringify(updated)}`);
+      const saved = await repo.save(updated);
+      this.logger.debug(`Contact updated successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error updating contact: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async delete(id: string) {

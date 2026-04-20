@@ -139,7 +139,12 @@ export class AccountsController {
   @Roles('admin', 'manager', 'user')
   @HttpCode(201)
   async create(@Body(new ValidationPipe()) createDto: CreateAccountDto) {
-    return this.accountService.create(createDto);
+    try {
+      return await this.accountService.create(createDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to create account: ${error.message}`);
+    }
   }
 
   /**

@@ -157,6 +157,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
       onSuccess();
       onClose();
     } catch (err: any) {
+      console.error('Contact form error:', err);
       setError(err.message || 'An error occurred');
     } finally {
       setLoading(false);

@@ -64,25 +64,42 @@ export class LeadService {
   }
 
   async create(data: Partial<Lead>) {
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const lead = repo.create({
-      ...data,
-      tenantId: orgId,
-    });
-    return repo.save(lead);
+      const lead = repo.create({
+        ...data,
+        tenantId: orgId,
+      });
+      
+      this.logger.debug(`Creating lead: ${JSON.stringify(lead)}`);
+      const saved = await repo.save(lead);
+      this.logger.debug(`Lead created successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error creating lead: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async update(id: string, data: Partial<Lead>) {
-    const existing = await this.findById(id);
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const existing = await this.findById(id);
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const updated = Object.assign(existing, data);
-    return repo.save(updated);
+      const updated = Object.assign(existing, data);
+      this.logger.debug(`Updating lead ${id}: ${JSON.stringify(updated)}`);
+      const saved = await repo.save(updated);
+      this.logger.debug(`Lead updated successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error updating lead: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   async delete(id: string) {

@@ -55,13 +55,23 @@ export class LeadsController {
   @Roles('admin', 'manager', 'user')
   @HttpCode(201)
   async create(@Body(new ValidationPipe()) createDto: CreateLeadDto) {
-    return this.leadService.create(createDto);
+    try {
+      return await this.leadService.create(createDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to create lead: ${error.message}`);
+    }
   }
 
   @Put(':id')
   @Roles('admin', 'manager', 'user')
   async update(@Param('id') id: string, @Body(new ValidationPipe()) updateDto: UpdateLeadDto) {
-    return this.leadService.update(id, updateDto);
+    try {
+      return await this.leadService.update(id, updateDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to update lead: ${error.message}`);
+    }
   }
 
   /**

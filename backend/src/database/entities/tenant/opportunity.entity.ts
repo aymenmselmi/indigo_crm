@@ -27,7 +27,7 @@ export class Opportunity {
   @Column({ type: 'varchar', length: 100, default: 'prospecting' })
   stage: string; // 'prospecting', 'qualification', 'proposal', 'negotiation', 'closed-won', 'closed-lost'
 
-  @Column({ type: 'decimal', precision: 15, scale: 2 })
+  @Column({ type: 'decimal', precision: 15, scale: 2, nullable: true, default: null })
   amount: number;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })

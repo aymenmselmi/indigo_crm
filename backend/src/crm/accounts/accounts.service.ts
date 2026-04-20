@@ -103,16 +103,25 @@ export class AccountService {
    * @returns Created account
    */
   async create(data: Partial<Account>) {
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+    try {
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    // Automatically set tenantId to ensure data integrity
-    const account = repo.create({
-      ...data,
-      tenantId: orgId,
-    });
-    return repo.save(account);
+      // Automatically set tenantId to ensure data integrity
+      const account = repo.create({
+        ...data,
+        tenantId: orgId,
+      });
+      
+      this.logger.debug(`Creating account: ${JSON.stringify(account)}`);
+      const saved = await repo.save(account);
+      this.logger.debug(`Account created successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error creating account: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   /**
@@ -123,15 +132,23 @@ export class AccountService {
    * @returns Updated account
    */
   async update(id: string, data: Partial<Account>) {
-    // Verify it exists first
-    const existing = await this.findById(id);
+    try {
+      // Verify it exists first
+      const existing = await this.findById(id);
 
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
+      const orgId = this.getOrganizationId();
+      const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+      const repo = await this.getRepository(dataSource);
 
-    const updated = Object.assign(existing, data);
-    return repo.save(updated);
+      const updated = Object.assign(existing, data);
+      this.logger.debug(`Updating account ${id}: ${JSON.stringify(updated)}`);
+      const saved = await repo.save(updated);
+      this.logger.debug(`Account updated successfully: ${saved.id}`);
+      return saved;
+    } catch (error) {
+      this.logger.error(`Error updating account: ${error.message}`, error.stack);
+      throw error;
+    }
   }
 
   /**

@@ -92,13 +92,23 @@ export class ContactsController {
   @Roles('admin', 'manager', 'user')
   @HttpCode(201)
   async create(@Body(new ValidationPipe()) createDto: CreateContactDto) {
-    return this.contactService.create(createDto);
+    try {
+      return await this.contactService.create(createDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to create contact: ${error.message}`);
+    }
   }
 
   @Put(':id')
   @Roles('admin', 'manager', 'user')
   async update(@Param('id') id: string, @Body(new ValidationPipe()) updateDto: UpdateContactDto) {
-    return this.contactService.update(id, updateDto);
+    try {
+      return await this.contactService.update(id, updateDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to update contact: ${error.message}`);
+    }
   }
 
   @Delete(':id')

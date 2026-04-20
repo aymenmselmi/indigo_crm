@@ -91,15 +91,25 @@ export class OpportunitiesController {
   @Post()
   @Roles('admin', 'manager', 'user')
   @HttpCode(201)
-  async create(@Body(new ValidationPipe()) createDto: CreateOpportunityDto) {
-    return this.opportunityService.create(createDto);
+  async create(@Body() createDto: CreateOpportunityDto) {
+    try {
+      return await this.opportunityService.create(createDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to create opportunity: ${error.message}`);
+    }
   }
 
   @Put(':id')
   @Roles('admin', 'manager', 'user')
   async update(@Param('id') id: string, @Body(new ValidationPipe()) updateDto: UpdateOpportunityDto) {
-    return this.opportunityService.update(id, updateDto);
-  
+    try {
+      return await this.opportunityService.update(id, updateDto);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException(`Failed to update opportunity: ${error.message}`);
+    }
+  }
 
   @Delete(':id')
   @Roles('admin')
