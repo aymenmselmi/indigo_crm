@@ -11,6 +11,7 @@ import {
   Query,
   BadRequestException,
   ValidationPipe,
+  Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '@/rbac/guards/roles.guard';
@@ -27,6 +28,33 @@ import { CreateActivityDto, UpdateActivityDto } from './dto';
 export class ActivitiesController {
   constructor(private activityService: ActivityService) {}
 
+  // Specific routes BEFORE generic :id route
+  @Get('search')
+  @Roles('admin', 'manager', 'user')
+  async search(@Query('query') query?: string, @Query('limit') limit?: string) {
+    if (!query || query.trim().length === 0) {
+      throw new BadRequestException('query parameter is required');
+    }
+
+    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 20;
+    return this.activityService.search(query.trim(), parsedLimit);
+  }
+
+  @Get('contact/:contactId')
+  @Roles('admin', 'manager', 'user')
+  async getByContact(@Param('contactId') contactId: string, @Query('limit') limit?: string) {
+    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 50;
+    return this.activityService.findByContact(contactId, parsedLimit);
+  }
+
+  @Get('opportunity/:opportunityId')
+  @Roles('admin', 'manager', 'user')
+  async getByOpportunity(@Param('opportunityId') opportunityId: string, @Query('limit') limit?: string) {
+    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 50;
+    return this.activityService.findByOpportunity(opportunityId, parsedLimit);
+  }
+
+  // Generic routes AFTER specific routes
   @Get()
   @Roles('admin', 'manager', 'user')
   async getAll(@Query('limit') limit?: string, @Query('offset') offset?: string) {
@@ -54,8 +82,8 @@ export class ActivitiesController {
   @Post()
   @Roles('admin', 'manager', 'user')
   @HttpCode(201)
-  async create(@Body(new ValidationPipe()) createDto: CreateActivityDto) {
-    return this.activityService.create(createDto);
+  async create(@Body(new ValidationPipe()) createDto: CreateActivityDto, @Request() req: any) {
+    return this.activityService.create({ ...createDto, createdByUserId: req.user?.sub || req.user?.id });
   }
 
   @Put(':id')
@@ -69,30 +97,5 @@ export class ActivitiesController {
   @HttpCode(204)
   async delete(@Param('id') id: string) {
     return this.activityService.delete(id);
-  }
-
-  @Get('search')
-  @Roles('admin', 'manager', 'user')
-  async search(@Query('query') query?: string, @Query('limit') limit?: string) {
-    if (!query || query.trim().length === 0) {
-      throw new BadRequestException('query parameter is required');
-    }
-
-    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 20;
-    return this.activityService.search(query.trim(), parsedLimit);
-  }
-
-  @Get('contact/:contactId')
-  @Roles('admin', 'manager', 'user')
-  async getByContact(@Param('contactId') contactId: string, @Query('limit') limit?: string) {
-    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 50;
-    return this.activityService.findByContact(contactId, parsedLimit);
-  }
-
-  @Get('opportunity/:opportunityId')
-  @Roles('admin', 'manager', 'user')
-  async getByOpportunity(@Param('opportunityId') opportunityId: string, @Query('limit') limit?: string) {
-    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 50;
-    return this.activityService.findByOpportunity(opportunityId, parsedLimit);
   }
 }

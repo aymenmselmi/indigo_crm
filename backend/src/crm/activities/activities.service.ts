@@ -91,6 +91,38 @@ export class ActivityService {
     return repo.remove(activity);
   }
 
+  async findByContact(contactId: string, limit: number = 50) {
+    const orgId = this.getOrganizationId();
+    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+    const repo = await this.getRepository(dataSource);
+
+    const activities = await repo
+      .createQueryBuilder('activity')
+      .where('activity.relatedContactId = :contactId', { contactId })
+      .orderBy('activity.dueDate', 'DESC')
+      .addOrderBy('activity.createdAt', 'DESC')
+      .take(limit)
+      .getMany();
+
+    return activities;
+  }
+
+  async findByOpportunity(opportunityId: string, limit: number = 50) {
+    const orgId = this.getOrganizationId();
+    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
+    const repo = await this.getRepository(dataSource);
+
+    const activities = await repo
+      .createQueryBuilder('activity')
+      .where('activity.relatedOpportunityId = :opportunityId', { opportunityId })
+      .orderBy('activity.dueDate', 'DESC')
+      .addOrderBy('activity.createdAt', 'DESC')
+      .take(limit)
+      .getMany();
+
+    return activities;
+  }
+
   async search(query: string, limit: number = 20) {
     const orgId = this.getOrganizationId();
     const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
@@ -109,31 +141,5 @@ export class ActivityService {
     const repo = await this.getRepository(dataSource);
 
     return repo.createQueryBuilder('activity').getCount();
-  }
-
-  async findByContact(contactId: string, limit: number = 50) {
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
-
-    return repo
-      .createQueryBuilder('activity')
-      .where('activity.relatedContactId = :contactId', { contactId })
-      .orderBy('activity.dueDate', 'DESC')
-      .limit(limit)
-      .getMany();
-  }
-
-  async findByOpportunity(opportunityId: string, limit: number = 50) {
-    const orgId = this.getOrganizationId();
-    const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-    const repo = await this.getRepository(dataSource);
-
-    return repo
-      .createQueryBuilder('activity')
-      .where('activity.relatedOpportunityId = :opportunityId', { opportunityId })
-      .orderBy('activity.dueDate', 'DESC')
-      .limit(limit)
-      .getMany();
   }
 }
