@@ -25,7 +25,7 @@ export class GlobalUser {
   organizationId: string;
 
   @Column({ type: 'varchar', length: 50, default: 'user' })
-  role: 'admin' | 'user';
+  role: 'admin' | 'user' | 'super_admin';
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   phone: string;
