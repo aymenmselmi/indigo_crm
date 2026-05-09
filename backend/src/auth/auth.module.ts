@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies';
-import { GlobalUser } from '../database/entities/master';
+import { GlobalUser, Invitation, Organization } from '../database/entities/master';
 
 @Module({
   imports: [
@@ -21,7 +21,7 @@ import { GlobalUser } from '../database/entities/master';
         },
       }),
     }),
-    TypeOrmModule.forFeature([GlobalUser]),
+    TypeOrmModule.forFeature([GlobalUser, Invitation, Organization]),
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
