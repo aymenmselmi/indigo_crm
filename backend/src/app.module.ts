@@ -5,6 +5,7 @@ import { TenantModule } from './tenant/tenant.module';
 import { AuthModule } from './auth/auth.module';
 import { RbacModule } from './rbac/rbac.module';
 import { CrmModule } from './crm/crm.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CrmModule } from './crm/crm.module';
     AuthModule,
     RbacModule,
     CrmModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],

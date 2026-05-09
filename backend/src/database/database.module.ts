@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
-import { Organization, GlobalUser, TenantConfig } from './entities/master';
+import { Organization, GlobalUser, TenantConfig, Invitation } from './entities/master';
 import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, DynamicEntity, DynamicField } from './entities/tenant';
 
 @Module({
@@ -22,6 +22,7 @@ import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, 
           Organization,
           GlobalUser,
           TenantConfig,
+          Invitation,
           // Tenant entities
           User,
           Role,
@@ -46,6 +47,7 @@ import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, 
       Organization,
       GlobalUser,
       TenantConfig,
+      Invitation,
       User,
       Role,
       Permission,

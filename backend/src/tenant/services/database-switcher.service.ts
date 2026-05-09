@@ -97,6 +97,21 @@ export class DatabaseSwitcherService {
     );
 
     // Build DataSource for this tenant
+    const {
+      User,
+      Role,
+      Permission,
+      Account,
+      Contact,
+      Lead,
+      Opportunity,
+      Activity,
+      Task,
+      TaskComment,
+      DynamicEntity,
+      DynamicField,
+    } = tenantEntities;
+
     const tenantDataSource = new DataSource({
       type: 'postgres',
       host: organization.dbHost,
@@ -105,7 +120,20 @@ export class DatabaseSwitcherService {
       password: organization.dbPassword,
       database: organization.dbName!,
       // Load all tenant entities
-      entities: Object.values(tenantEntities),
+      entities: [
+        User,
+        Role,
+        Permission,
+        Account,
+        Contact,
+        Lead,
+        Opportunity,
+        Activity,
+        Task,
+        TaskComment,
+        DynamicEntity,
+        DynamicField,
+      ],
       synchronize: process.env.NODE_ENV === 'development',
       logging: process.env.NODE_ENV === 'development',
       maxQueryExecutionTime: 5000, // Log slow queries
