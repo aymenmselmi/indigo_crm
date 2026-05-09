@@ -8,11 +8,13 @@ export class CreateOpportunityDto {
   @IsString()
   description?: string;
 
+  @IsOptional()
   @IsUUID()
-  leadId: string;
+  leadId?: string;
 
+  @IsOptional()
   @IsUUID()
-  accountId: string;
+  accountId?: string;
 
   @IsOptional()
   @IsEnum(['prospecting', 'qualification', 'proposal', 'negotiation', 'closed-won', 'closed-lost'])

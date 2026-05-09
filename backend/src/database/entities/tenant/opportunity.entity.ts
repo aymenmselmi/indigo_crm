@@ -18,10 +18,10 @@ export class Opportunity {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   leadId: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: 'uuid', nullable: true })
   accountId: string;
 
   @Column({ type: 'varchar', length: 100, default: 'prospecting' })
@@ -51,11 +51,11 @@ export class Opportunity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Lead, (lead) => lead.opportunities, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Lead, (lead) => lead.opportunities, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'leadId' })
   lead: Lead;
 
-  @ManyToOne(() => Account, (account) => account.opportunities, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Account, (account) => account.opportunities, { onDelete: 'SET NULL', nullable: true })
   @JoinColumn({ name: 'accountId' })
   account: Account;
 
