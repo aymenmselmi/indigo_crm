@@ -10,10 +10,21 @@ build/
 .nuxt/
 out/
 
+# Vite cache
+.vite/
+
+# SSL / certificates
+*.pem
+*.key
+*.cert
+
 # Environment variables
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+.env.staging
 
 # IDE
 .vscode/
@@ -46,3 +57,31 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Prototype / scratch files (new-frontend root)
+new-frontend/uploads/
+new-frontend/CRM\ Prototype.html
+new-frontend/CLAUDE_CODE_HANDOFF.md
+new-frontend/vite-output.txt
+new-frontend/app.jsx
+new-frontend/chrome.jsx
+new-frontend/data.jsx
+new-frontend/icons.jsx
+new-frontend/overlays.jsx
+new-frontend/primitives.jsx
+new-frontend/tweaks-panel.jsx
+new-frontend/view-*.jsx
+
+# Dev scripts
+reset-db.js
+test-register*.ps1
+register-user.ps1
+
+# AI / internal planning docs
+PHASE_3_KICKOFF.md
+PRODUCT_BACKLOG_AND_RELEASES.md
+README_DOCUMENTATION.md
+SPRINT_5_DETAILED.md
+"backend/claude project resume.md"
+backend/claude\ project\ resume.md
+documentation/
