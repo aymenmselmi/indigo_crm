@@ -4,12 +4,14 @@ import { Task, TaskStatus, TaskPriority } from '@/database/entities/tenant/task.
 import { DatabaseSwitcherService } from '@/tenant/services/database-switcher.service';
 import { TenantContextService } from '@/tenant/services/tenant-context.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto/create-task.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     private databaseSwitcher: DatabaseSwitcherService,
     private tenantContext: TenantContextService,
+    private notifications: NotificationsService,
   ) {}
 
   async findAll(limit: number = 50, offset: number = 0, filters?: any) {
@@ -115,10 +117,25 @@ export class TasksService {
       const task = repository.create({
         ...createTaskDto,
         organizationId,
-        createdByUserId: userId, // Set FK column directly
+        createdByUserId: userId,
+        assignedToId: createTaskDto.assignedToId ?? userId,
       });
 
       const savedTask = await repository.save(task);
+
+      // Notify assignee when someone else assigns them a task
+      const assignee = createTaskDto.assignedToId ?? userId;
+      if (assignee && assignee !== userId) {
+        this.notifications.create({
+          userId: assignee,
+          type: 'task_assigned',
+          title: 'New task assigned to you',
+          body: createTaskDto.title,
+          entityType: 'task',
+          entityId: savedTask.id,
+        }).catch(() => {});
+      }
+
       return this.findById(savedTask.id);
     } catch (error) {
       console.error('[Tasks.create] Error creating task:', error);
