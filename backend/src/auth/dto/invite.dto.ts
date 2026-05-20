@@ -5,6 +5,6 @@ export class InviteUserDto {
   email: string;
 
   @IsOptional()
-  @IsIn(['admin', 'user'])
+  @IsIn(['admin', 'manager', 'user'])
   role?: string;
 }

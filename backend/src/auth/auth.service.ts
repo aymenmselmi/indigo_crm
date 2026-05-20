@@ -284,6 +284,19 @@ export class AuthService {
     });
   }
 
+  async updateMemberRole(memberId: string, organizationId: string, role: string, requesterId: string) {
+    const allowed = ['user', 'manager', 'admin'];
+    if (!allowed.includes(role)) {
+      throw new BadRequestException(`Invalid role. Allowed: ${allowed.join(', ')}`);
+    }
+    const globalUserRepo = this.dataSource.getRepository(GlobalUser);
+    const member = await globalUserRepo.findOne({ where: { id: memberId, organizationId } });
+    if (!member) throw new NotFoundException('Member not found');
+    if (member.id === requesterId) throw new BadRequestException('You cannot change your own role');
+    await globalUserRepo.update(memberId, { role: role as any });
+    return { success: true, id: memberId, role };
+  }
+
   async refreshToken(user: any) {
     const globalUserRepository = this.dataSource.getRepository(GlobalUser);
     const foundUser = await globalUserRepository.findOne({ where: { id: user.id } });

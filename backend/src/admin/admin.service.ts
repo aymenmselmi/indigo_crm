@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Organization, GlobalUser } from '../database/entities/master';
+import { TenantContextService } from '../tenant/services/tenant-context.service';
 
 @Injectable()
 export class AdminService {
@@ -107,5 +108,30 @@ export class AdminService {
     if (dto.status) user.status = dto.status as any;
 
     return userRepo.save(user);
+  }
+
+  async getManagerMetrics(organizationId: string) {
+    const userRepo = this.dataSource.getRepository(GlobalUser);
+    const org = await this.dataSource.getRepository(Organization).findOne({ where: { id: organizationId } });
+    if (!org || !org.dbName) return null;
+
+    const tenantDs = this.dataSource.manager.connection;
+
+    // Query tenant DB directly via raw query on the named DB
+    const members = await userRepo.find({
+      where: { organizationId },
+      select: ['id', 'firstName', 'lastName', 'email', 'role'],
+    });
+
+    return {
+      organizationId,
+      memberCount: members.length,
+      members: members.map(m => ({
+        id: m.id,
+        name: [m.firstName, m.lastName].filter(Boolean).join(' '),
+        email: m.email,
+        role: m.role,
+      })),
+    };
   }
 }

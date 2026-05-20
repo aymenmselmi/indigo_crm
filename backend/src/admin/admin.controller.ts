@@ -1,6 +1,7 @@
-import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { SuperAdminGuard } from './guards/super-admin.guard';
+import { ManagerGuard } from './guards/manager.guard';
 import { AdminService } from './admin.service';
 
 @Controller('admin')
@@ -42,5 +43,16 @@ export class AdminController {
     @Body() dto: { role?: string; status?: string },
   ) {
     return this.adminService.updateUser(id, dto);
+  }
+}
+
+@Controller('manager')
+@UseGuards(AuthGuard('jwt'), ManagerGuard)
+export class ManagerController {
+  constructor(private adminService: AdminService) {}
+
+  @Get('metrics')
+  getMetrics(@Request() req) {
+    return this.adminService.getManagerMetrics(req.user.organizationId);
   }
 }

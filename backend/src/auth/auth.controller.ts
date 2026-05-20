@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Body, UseGuards, Request, Param } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Patch, Body, UseGuards, Request, Param } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, InviteUserDto, AcceptInviteDto } from './dto';
@@ -89,5 +89,13 @@ export class AuthController {
   @ApiOperation({ summary: 'List all members of the current organization' })
   async listMembers(@Request() req: any) {
     return this.authService.listMembers(req.user.organizationId);
+  }
+
+  @Patch('members/:id/role')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a member role (admin only)' })
+  async updateMemberRole(@Param('id') id: string, @Body('role') role: string, @Request() req: any) {
+    return this.authService.updateMemberRole(id, req.user.organizationId, role, req.user.sub);
   }
 }
