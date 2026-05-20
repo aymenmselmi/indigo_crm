@@ -110,6 +110,7 @@ export class DatabaseSwitcherService {
       TaskComment,
       DynamicEntity,
       DynamicField,
+      Notification,
     } = tenantEntities;
 
     const tenantDataSource = new DataSource({
@@ -119,7 +120,6 @@ export class DatabaseSwitcherService {
       username: organization.dbUser,
       password: organization.dbPassword,
       database: organization.dbName!,
-      // Load all tenant entities
       entities: [
         User,
         Role,
@@ -133,6 +133,7 @@ export class DatabaseSwitcherService {
         TaskComment,
         DynamicEntity,
         DynamicField,
+        Notification,
       ],
       synchronize: process.env.NODE_ENV === 'development',
       logging: process.env.NODE_ENV === 'development',

@@ -5,6 +5,7 @@ import { LeadsModule } from './leads/leads.module';
 import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { TasksModule } from './tasks/tasks.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 /**
  * CRM Module
@@ -24,6 +25,7 @@ import { TasksModule } from './tasks/tasks.module';
     OpportunitiesModule,
     ActivitiesModule,
     TasksModule,
+    NotificationsModule,
   ],
   exports: [
     AccountsModule,
@@ -32,6 +34,7 @@ import { TasksModule } from './tasks/tasks.module';
     OpportunitiesModule,
     ActivitiesModule,
     TasksModule,
+    NotificationsModule,
   ],
 })
 export class CrmModule {}
