@@ -41,6 +41,7 @@ export class ContactService {
 
     const [contacts, total] = await repo
       .createQueryBuilder('contact')
+      .leftJoinAndSelect('contact.account', 'account')
       .orderBy('contact.createdAt', 'DESC')
       .skip(offset)
       .take(limit)
@@ -54,7 +55,7 @@ export class ContactService {
     const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
     const repo = await this.getRepository(dataSource);
 
-    const contact = await repo.findOne({ where: { id } });
+    const contact = await repo.findOne({ where: { id }, relations: ['account'] });
 
     if (!contact) {
       throw new NotFoundException('Contact not found');

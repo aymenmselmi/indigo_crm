@@ -40,6 +40,7 @@ export class OpportunityService {
 
     const [opportunities, total] = await repo
       .createQueryBuilder('opportunity')
+      .leftJoinAndSelect('opportunity.account', 'account')
       .orderBy('opportunity.createdAt', 'DESC')
       .skip(offset)
       .take(limit)
@@ -53,7 +54,7 @@ export class OpportunityService {
     const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
     const repo = await this.getRepository(dataSource);
 
-    const opportunity = await repo.findOne({ where: { id } });
+    const opportunity = await repo.findOne({ where: { id }, relations: ['account'] });
 
     if (!opportunity) {
       throw new NotFoundException('Opportunity not found');

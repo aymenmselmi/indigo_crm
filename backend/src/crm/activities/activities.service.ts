@@ -39,6 +39,8 @@ export class ActivityService {
 
     const [activities, total] = await repo
       .createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.relatedContact', 'contact')
+      .leftJoinAndSelect('activity.relatedOpportunity', 'opportunity')
       .orderBy('activity.createdAt', 'DESC')
       .skip(offset)
       .take(limit)
@@ -114,6 +116,8 @@ export class ActivityService {
 
     const activities = await repo
       .createQueryBuilder('activity')
+      .leftJoinAndSelect('activity.relatedContact', 'contact')
+      .leftJoinAndSelect('activity.relatedOpportunity', 'opportunity')
       .where('activity.relatedOpportunityId = :opportunityId', { opportunityId })
       .orderBy('activity.dueDate', 'DESC')
       .addOrderBy('activity.createdAt', 'DESC')

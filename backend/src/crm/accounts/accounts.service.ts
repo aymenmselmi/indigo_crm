@@ -107,7 +107,6 @@ export class AccountService {
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
       const repo = await this.getRepository(dataSource);
-
       // Automatically set tenantId to ensure data integrity
       const account = repo.create({
         ...data,
