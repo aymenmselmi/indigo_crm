@@ -5,8 +5,10 @@ import { api, unwrap } from '../services/api';
 import { normalizeTask } from '../utils/normalize';
 
 export const TasksView = ({ openDetail, addToast, openQuickAdd }) => {
-  const [tasks, setTasks]     = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const [showCompleted, setShowCompleted]   = useState(true);
 
   useEffect(() => {
     api.getMyTasks()
@@ -31,11 +33,12 @@ export const TasksView = ({ openDetail, addToast, openQuickAdd }) => {
   const openCount    = tasks.filter(t => !t.done).length;
   const overdueCount = tasks.filter(t => t.dueState === 'overdue' && !t.done).length;
 
+  const byPriority = t => priorityFilter === 'all' || t.priority === priorityFilter || (priorityFilter === 'high' && t.priority === 'high') || (priorityFilter === 'med' && (t.priority === 'med' || t.priority === 'medium')) || (priorityFilter === 'low' && t.priority === 'low');
   const groups = [
-    { label: 'Overdue',   list: tasks.filter(t => t.dueState === 'overdue' && !t.done) },
-    { label: 'Today',     list: tasks.filter(t => t.dueState === 'today'   && !t.done) },
-    { label: 'Upcoming',  list: tasks.filter(t => t.dueState === 'normal'  && !t.done) },
-    { label: 'Completed', list: tasks.filter(t => t.done) },
+    { label: 'Overdue',   list: tasks.filter(t => t.dueState === 'overdue' && !t.done && byPriority(t)) },
+    { label: 'Today',     list: tasks.filter(t => t.dueState === 'today'   && !t.done && byPriority(t)) },
+    { label: 'Upcoming',  list: tasks.filter(t => t.dueState === 'normal'  && !t.done && byPriority(t)) },
+    { label: 'Completed', list: showCompleted ? tasks.filter(t => t.done && byPriority(t)) : [] },
   ];
 
   return (
@@ -49,7 +52,19 @@ export const TasksView = ({ openDetail, addToast, openQuickAdd }) => {
           </div>
         </div>
         <div className="actions">
-          <button className="btn sm"><Icon name="filter" size={13} />Filter</button>
+          <select
+            value={priorityFilter}
+            onChange={e => setPriorityFilter(e.target.value)}
+            style={{ height: 30, padding: '0 8px', border: '1px solid var(--line)', borderRadius: 7, background: 'var(--bg)', fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink)', cursor: 'pointer' }}
+          >
+            <option value="all">All priorities</option>
+            <option value="high">High</option>
+            <option value="med">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <button className={`btn sm ${!showCompleted ? 'active' : ''}`} onClick={() => setShowCompleted(v => !v)}>
+            <Icon name="filter" size={13} />{showCompleted ? 'Hide completed' : 'Show completed'}
+          </button>
           <button className="btn primary sm" onClick={() => openQuickAdd && openQuickAdd('task')}><Icon name="plus" size={13} />New task <KbdInline k="T" /></button>
         </div>
       </div>

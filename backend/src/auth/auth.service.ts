@@ -284,6 +284,16 @@ export class AuthService {
     });
   }
 
+  async removeMember(memberId: string, organizationId: string, requesterId: string) {
+    const globalUserRepo = this.dataSource.getRepository(GlobalUser);
+    const member = await globalUserRepo.findOne({ where: { id: memberId, organizationId } });
+    if (!member) throw new NotFoundException('Member not found');
+    if (member.id === requesterId) throw new BadRequestException('You cannot remove yourself');
+    if (member.role === 'super_admin') throw new BadRequestException('Cannot remove a super admin');
+    await globalUserRepo.delete(memberId);
+    return { success: true };
+  }
+
   async updateMemberRole(memberId: string, organizationId: string, role: string, requesterId: string) {
     const allowed = ['user', 'manager', 'admin'];
     if (!allowed.includes(role)) {

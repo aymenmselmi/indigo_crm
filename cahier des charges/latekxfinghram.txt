@@ -1,0 +1,2141 @@
+\documentclass[12pt,a4paper,twoside,openany]{book}
+
+% Encoding and language
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+% Font: Times New Roman
+% \usepackage{newtxtext}
+% \usepackage{newtxmath}
+
+% Margins: Left 2.5-3 cm, Right 2-2.5 cm, Top/Bottom 2.5 cm
+\usepackage[
+    left=2.75cm,
+    right=2.25cm,
+    top=2.5cm,
+    bottom=2.5cm,
+    headheight=15pt,
+    headsep=10pt,
+    footskip=15pt
+]{geometry}
+
+% Line spacing: 1.5
+\usepackage{setspace}
+\onehalfspacing
+
+% Text alignment: Justified
+\usepackage{ragged2e}
+
+% Float placement control
+\usepackage{float}
+
+% Paragraph spacing: 6 pt between paragraphs
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+% Optional paragraph indentation: 0.5 cm
+\setlength{\parindent}{0.5cm}
+
+% Customize chapter titles (Grand titre)
+% Size: 16-18 pt, Bold, Uppercase, Centered
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+    {\centering\bfseries}
+    {\Large\chaptertitlename~\thechapter}
+    {0.5em}
+    {\Large\MakeUppercase}
+\titlespacing*{\chapter}{0pt}{-30pt}{20pt}
+
+% Customize section titles (Petit titre 1)
+% Size: 14 pt, Bold, Left aligned
+\titleformat{\section}[hang]
+    {\raggedright\large\bfseries}
+    {\thesection}
+    {0.5em}
+    {}
+\titlespacing*{\section}{0pt}{12pt plus 4pt minus 2pt}{6pt}
+
+% Customize subsection titles (Petit titre 2)
+% Size: 12-13 pt, Bold, Left aligned
+\titleformat{\subsection}[hang]
+    {\raggedright\normalsize\bfseries}
+    {\thesubsection}
+    {0.5em}
+    {}
+\titlespacing*{\subsection}{0pt}{10pt plus 3pt minus 1pt}{6pt}
+
+% Customize list environments
+\usepackage{enumitem}
+\setlist[itemize]{
+    labelsep=0.5em,
+    leftmargin=*,
+    topsep=6pt,
+    itemsep=3pt
+}
+
+% Page numbering: centered at bottom
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % Clear all headers and footers
+\cfoot{\thepage} % Center page number in footer
+\renewcommand{\headrulewidth}{0pt} % Remove header line
+\renewcommand{\footrulewidth}{0pt} % Remove footer line
+
+\begin{document}
+
+\justifying
+
+\tableofcontents
+\clearpage
+
+\chapter{Cadre général du projet}
+
+\section{Introduction}
+
+Dans le cadre de notre projet de fin d’études, nous avons réalisé un stage au sein de l’entreprise KARRIERY, spécialisée dans les services de ressources humaines. Ce stage a consisté principalement en la conception et le développement de IndigoCRM, une application web de type CRM cloud multi-tenant.
+
+Ce chapitre a pour objectif de présenter l’entreprise d’accueil ainsi que le cadre général du projet. Nous allons également analyser les solutions existantes, identifier leurs limites et proposer une solution adaptée. Enfin, nous présenterons la méthodologie adoptée pour la réalisation du projet.
+
+\section{Présentation générale de l’entreprise}
+
+\subsection{Présentation de KARRIERY}
+
+KARRIERY est une plateforme spécialisée dans les services de ressources humaines, fondée en 2022 et basée à Tunis. Elle accompagne les chercheurs d’emploi dans leur parcours professionnel en leur proposant des solutions adaptées pour améliorer leur employabilité.
+
+\subsection{Activités de l’entreprise}
+
+KARRIERY propose plusieurs services destinés aux candidats, notamment :
+
+\begin{itemize}
+\item Révision et amélioration du curriculum vitae
+\item Rédaction de lettres de motivation
+\item Préparation aux entretiens d’embauche
+\item Optimisation des profils LinkedIn
+\item Accompagnement en compétences comportementales (soft skills)
+\end{itemize}
+
+La plateforme met également à disposition des experts dans différents domaines afin d’aider les candidats à mieux se positionner sur le marché du travail.
+
+\subsection{Fiche technique de l’entreprise}
+
+\begin{itemize}
+\item Nom de l’entreprise : KARRIERY
+\item Domaine : Services de ressources humaines
+\item Type : Plateforme de services
+\item Année de création : 2022
+\item Siège social : Tunis, Tunisie
+\item Taille : Entre 11 et 50 employés
+\item Site web : https://karriery.com
+\end{itemize}
+
+\section{Présentation générale du projet}
+
+\subsection{Description du projet}
+
+Le projet consiste à concevoir et développer une plateforme CRM cloud multi-tenant IndigoCRM permettant aux entreprises de gérer efficacement leurs relations clients. Cette solution vise à centraliser les données, faciliter le suivi des interactions et améliorer les performances commerciales.
+
+L’application permet notamment la gestion des leads, des comptes, des contacts, des opportunités ainsi que des activités commerciales.
+
+\subsection{Objectifs du projet}
+
+Les principaux objectifs de ce projet sont :
+
+\begin{itemize}
+\item Développer une plateforme CRM moderne et intuitive
+\item Améliorer la gestion des relations clients
+\item Mettre en place une architecture multi-tenant
+\item Assurer la sécurité à travers un système de gestion des rôles (RBAC (Role-Based Access Control))
+\item Permettre la personnalisation des entités métier
+\end{itemize}
+
+\section{Étude de l’existant}
+
+\subsection{Description de l’existant}
+
+Actuellement, plusieurs entreprises utilisent des outils traditionnels tels que des fichiers Excel ou des solutions non centralisées pour gérer leurs données clients. Cette approche limite la visibilité globale des informations et complique la gestion des interactions avec les clients.
+
+Par ailleurs, certaines entreprises utilisent des solutions CRM existantes. Toutefois, ces solutions sont souvent complexes, coûteuses et peu adaptées aux besoins spécifiques des petites et moyennes entreprises.
+
+\subsection{Critiques de l’existant}
+
+Les solutions existantes présentent plusieurs inconvénients :
+
+\begin{itemize}
+\item Gestion manuelle des données sujette aux erreurs
+\item Difficulté de centralisation des informations
+\item Manque de flexibilité et de personnalisation
+\item Coût élevé des solutions professionnelles
+\item Absence d’isolation des données entre organisations
+\end{itemize}
+
+\subsection{Solution proposée}
+
+Face à ces limitations, nous proposons une plateforme CRM cloud multi-tenant permettant :
+
+\begin{itemize}
+\item La gestion des leads
+\item La gestion des comptes (Accounts)
+\item La gestion des contacts
+\item La gestion des opportunités
+\item La gestion des activités (appels, tâches, notes)
+\item Un tableau de bord avec indicateurs de performance (KPIs)
+\end{itemize}
+
+Cette solution permet d’améliorer l’organisation des données, d’optimiser les processus commerciaux et d’assurer une meilleure prise de décision.
+
+\section{Choix méthodologique}
+
+\subsection{Méthodologie de travail}
+
+Afin de garantir une bonne organisation du projet et une meilleure gestion des évolutions, nous avons adopté une approche agile.
+
+\subsection{Méthode choisie : Scrum}
+
+Scrum est une méthode agile basée sur des cycles de développement appelés sprints. Elle permet une amélioration continue du produit et une meilleure adaptation aux besoins.
+
+\subsection{L’équipe Scrum}
+
+Dans le cadre de notre projet, l’équipe est composée de deux membres assurant le développement de l’application. Le travail a été réparti entre le développement frontend et backend.
+
+\subsection{Les artefacts Scrum}
+
+\begin{itemize}
+\item Product Backlog
+\item Sprint Backlog
+\item Incrément
+\end{itemize}
+
+\subsection{Les événements Scrum}
+
+\begin{itemize}
+\item Sprint
+\item Daily meeting
+\item Sprint review
+\item Sprint retrospective
+\end{itemize}
+
+\subsection{Langage de modélisation}
+
+Pour la conception du système, nous utilisons UML (Unified Modeling Language), qui permet de représenter les différentes composantes du système à travers des diagrammes.
+
+\section*{Conclusion}
+
+Dans ce chapitre, nous avons présenté le cadre général du projet ainsi que l’entreprise d’accueil. Nous avons également analysé les solutions existantes et proposé une solution adaptée basée sur une architecture moderne. Enfin, nous avons présenté la méthodologie Scrum adoptée pour la réalisation du projet.
+
+\chapter{Sprint 0 : Analyse des besoins et conception générale}
+
+\section*{Introduction}
+
+Dans le chapitre précédent, nous avons présenté l’entreprise d’accueil, le cadre général du projet, ainsi que la méthodologie Scrum adoptée pour sa réalisation. Dans ce deuxième chapitre, nous abordons le Sprint 0, qui constitue une étape essentielle de préparation et de cadrage du projet. Il s’agit d’identifier les besoins du système, de définir les acteurs, de modéliser les fonctionnalités principales à l’aide d’UML, d’élaborer le backlog produit, puis de présenter l’architecture générale de la solution ainsi que l’environnement de développement retenu.
+
+L’objectif de ce chapitre est donc de poser les fondements fonctionnels et techniques de notre plateforme CRM cloud multi-tenant inspirée de Salesforce, avant d’entamer la phase de réalisation.
+
+\section{Analyse et spécification des besoins}
+Cette section présente les besoins principaux de notre application CRM. Nous commençons par identifier les acteurs qui interagissent avec le système, puis nous détaillons les besoins fonctionnels et non fonctionnels nécessaires à la réalisation de la plateforme.
+
+\subsection{Identification des acteurs}
+
+L’étude du fonctionnement de notre application CRM nous a permis d’identifier quatre acteurs principaux :
+
+\begin{itemize}
+    \item \textbf{Visiteur} : il représente toute personne n’ayant pas encore accès à la plateforme. Il peut s’inscrire, créer une organisation et se connecter au système.
+    
+    \item \textbf{Utilisateur CRM} : il s’agit de l’utilisateur opérationnel de la plateforme, généralement un commercial ou un membre de l’équipe de vente. Il peut consulter le tableau de bord, gérer les leads, les comptes, les contacts, les opportunités ainsi que les activités commerciales.
+    
+    \item \textbf{Manager} : il supervise l’activité commerciale. En plus des fonctionnalités de l’utilisateur CRM, il peut analyser les activités de l’équipe, suivre les indicateurs de vente, consulter les rapports et piloter l’avancement des opportunités.
+    
+    \item \textbf{Administrateur} : il possède les privilèges les plus élevés. Il est chargé de la gestion des utilisateurs et des rôles, de la consultation des métriques globales de l’organisation, ainsi que de la personnalisation avancée de la plateforme.
+\end{itemize}
+
+\subsection{Besoins fonctionnels}
+
+Les besoins fonctionnels de notre application peuvent être regroupés en plusieurs catégories principales :
+
+\paragraph{Gestion de l’accès à la plateforme}
+\begin{itemize}
+    \item Inscription d’un utilisateur et création d’une organisation.
+    \item Authentification sécurisée des utilisateurs.
+    \item Déconnexion et gestion de session.
+\end{itemize}
+
+\paragraph{Gestion des leads}
+\begin{itemize}
+    \item Ajouter, modifier, consulter et supprimer un lead.
+    \item Qualifier un lead selon son état d’avancement.
+    \item Convertir un lead qualifié en enregistrement exploitable dans le CRM.
+\end{itemize}
+
+\paragraph{Gestion des comptes et des contacts}
+\begin{itemize}
+    \item Gérer les comptes représentant les entreprises ou clients.
+    \item Gérer les contacts associés à chaque compte.
+    \item Assurer la liaison entre contacts, comptes et opportunités.
+\end{itemize}
+
+\paragraph{Gestion des opportunités}
+\begin{itemize}
+    \item Créer et suivre les opportunités commerciales.
+    \item Faire évoluer une opportunité dans les différentes étapes du pipeline de vente.
+    \item Clôturer une opportunité en succès ou en échec.
+\end{itemize}
+
+\paragraph{Gestion des activités commerciales}
+\begin{itemize}
+    \item Créer des activités telles que des appels, réunions, tâches, e-mails et notes.
+    \item Associer une activité à un contact ou à une opportunité.
+    \item Consulter l’historique des interactions commerciales.
+\end{itemize}
+
+\paragraph{Pilotage et reporting}
+\begin{itemize}
+    \item Consulter un tableau de bord synthétique.
+    \item Suivre les indicateurs de performance commerciale.
+    \item Générer des rapports d’activité et de vente.
+\end{itemize}
+
+\paragraph{Administration et personnalisation}
+\begin{itemize}
+    \item Gérer les utilisateurs et les rôles.
+    \item Consulter les métriques de l’organisation.
+    \item Personnaliser certains champs et objets métier.
+\end{itemize}
+
+\subsection{Besoins non fonctionnels}
+
+En plus des fonctionnalités attendues, notre solution doit satisfaire plusieurs besoins non fonctionnels afin de garantir sa qualité et sa pérennité :
+
+\begin{itemize}
+    \item \textbf{Sécurité} : l’application doit assurer une authentification sécurisée, protéger l’accès aux ressources et garantir une gestion des droits conforme aux rôles des utilisateurs.
+    
+    \item \textbf{Isolation des données} : étant donné qu’il s’agit d’une architecture multi-tenant, les données de chaque organisation doivent être strictement isolées des autres organisations.
+    
+    \item \textbf{Performance} : le système doit offrir des temps de réponse satisfaisants pour les opérations courantes telles que la consultation des listes, la recherche et la navigation entre les modules.
+    
+    \item \textbf{Ergonomie} : l’interface doit être claire, intuitive et facile à utiliser afin d’améliorer la productivité des utilisateurs.
+    
+    \item \textbf{Extensibilité} : la solution doit permettre l’ajout futur de nouvelles fonctionnalités ou de nouveaux objets métier sans remettre en cause son architecture globale.
+    
+    \item \textbf{Maintenabilité} : le code doit être structuré de manière modulaire pour faciliter les corrections, les évolutions et les tests.
+    
+    \item \textbf{Traçabilité} : les principales opérations doivent pouvoir être suivies à travers les dates de création, de mise à jour et les informations de suivi métier.
+\end{itemize}
+
+\section{Diagramme de cas d’utilisation global}
+
+Afin de représenter les interactions entre les différents acteurs et le système, nous avons élaboré le diagramme de cas d’utilisation global présenté dans la figure \ref{fig:usecase_global}.
+\newpage
+\begin{figure}[H]
+    \centering
+    % Remplacer le chemin ci-dessous par le nom réel de votre fichier
+    \includegraphics[width=0.95\paperwidth,height=0.9\paperheight,keepaspectratio]{figures/usecase-crm.pdf}
+    \vfill
+    \caption{Diagramme de cas d’utilisation global du CRM}
+    \label{fig:usecase_global}
+\end{figure}
+
+\newpage
+
+Ce diagramme met en évidence les fonctionnalités centrales de la plateforme. Le visiteur peut créer une organisation et se connecter au système. Une fois authentifié, l’utilisateur CRM accède aux modules métiers de base : gestion des leads, comptes, contacts, opportunités et activités. Le manager intervient davantage dans le suivi des performances commerciales, l’analyse des activités de l’équipe et la consultation du tableau de bord des ventes. Enfin, l’administrateur gère les utilisateurs, les rôles, les métriques de l’organisation ainsi que les possibilités de personnalisation du système.
+
+Le processus métier principal du CRM peut être résumé par la chaîne suivante : \textit{capture d’un lead, qualification, conversion, création ou liaison avec un compte et un contact, suivi de l’opportunité, puis clôture du cycle commercial}. Cette logique métier constitue le cœur de notre application.
+
+\section{Backlog produit et planification prévisionnelle}
+
+Dans une démarche Scrum, le produit est décomposé en un ensemble de besoins exprimés sous forme de \textit{user stories}. Ces besoins sont centralisés dans un \textit{Product Backlog}, qui servira de base à la planification des sprints.
+
+\subsection{Product Backlog}
+
+Le tableau \ref{tab:backlog} présente un extrait du backlog produit retenu pour notre projet.
+
+\begin{table}[h]
+\centering
+\caption{Extrait du backlog produit}
+\label{tab:backlog}
+\scriptsize
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|p{3.2cm}|p{8.8cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{Fonctionnalité} & \textbf{User Story} & \textbf{Priorité} & \textbf{Estimation} \\
+\hline
+US1 & Inscription et organisation & En tant que visiteur, je veux créer un compte et une organisation afin d’accéder à la plateforme CRM. & H & 8 h \\
+\hline
+US2 & Authentification & En tant qu’utilisateur, je veux me connecter de manière sécurisée afin d’accéder à mon espace de travail. & H & 6 h \\
+\hline
+US3 & Tableau de bord & En tant qu’utilisateur CRM, je veux consulter un tableau de bord afin d’avoir une vue synthétique sur l’activité commerciale. & H & 10 h \\
+\hline
+US4 & Gestion des leads & En tant qu’utilisateur CRM, je veux gérer les leads afin d’assurer le suivi des prospects. & H & 12 h \\
+\hline
+US5 & Conversion de lead & En tant qu’utilisateur CRM, je veux convertir un lead qualifié afin de créer un compte, un contact et une opportunité. & H & 10 h \\
+\hline
+US6 & Gestion des comptes & En tant qu’utilisateur CRM, je veux gérer les comptes afin de centraliser les informations sur les entreprises clientes. & H & 10 h \\
+\hline
+US7 & Gestion des contacts & En tant qu’utilisateur CRM, je veux gérer les contacts afin de suivre les interlocuteurs liés aux comptes. & H & 10 h \\
+\hline
+US8 & Gestion des opportunités & En tant qu’utilisateur CRM, je veux gérer les opportunités afin de suivre l’évolution des ventes dans le pipeline commercial. & H & 12 h \\
+\hline
+US9 & Gestion des activités & En tant qu’utilisateur CRM, je veux enregistrer des appels, réunions, tâches et notes afin de conserver l’historique des interactions. & H & 10 h \\
+\hline
+US10 & Rapports et indicateurs & En tant que manager, je veux consulter les rapports et indicateurs de vente afin d’évaluer la performance de l’équipe. & M & 8 h \\
+\hline
+US11 & Gestion des utilisateurs et rôles & En tant qu’administrateur, je veux gérer les utilisateurs et leurs rôles afin de sécuriser l’accès au système. & H & 8 h \\
+\hline
+US12 & Personnalisation & En tant qu’administrateur, je veux personnaliser certains champs et objets afin d’adapter la plateforme aux besoins de l’organisation. & M & 10 h \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Planification prévisionnelle des sprints}
+
+Après l’élaboration du backlog produit, nous avons réparti les besoins du projet en plusieurs sprints. La planification prévisionnelle adoptée est présentée dans le tableau \ref{tab:sprints}.
+
+\begin{table}[h]
+\centering
+\caption{Planification prévisionnelle des sprints}
+\label{tab:sprints}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|p{4cm}|p{7cm}|c|}
+\hline
+\textbf{Sprint} & \textbf{Objectif principal} & \textbf{Fonctionnalités prévues} & \textbf{Durée} \\
+\hline
+Sprint 0 & Cadrage et conception & Analyse des besoins, diagrammes UML, backlog produit, architecture générale & 1 semaine \\
+\hline
+Sprint 1 & Mise en place du socle applicatif & Authentification, création d’organisation, structure générale de l’application, tableau de bord & 2 semaines \\
+\hline
+Sprint 2 & Gestion du référentiel commercial & Gestion des leads, comptes et contacts & 2 semaines \\
+\hline
+Sprint 3 & Gestion du cycle de vente & Gestion des opportunités, conversion des leads, gestion des activités & 2 semaines \\
+\hline
+Sprint 4 & Administration et finalisation & Gestion des utilisateurs et rôles, reporting, tests, intégration finale et corrections & 2 semaines \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+Cette planification reste prévisionnelle. Elle pourra être ajustée en fonction de l’avancement réel du projet et des priorités définies avec l’encadrant.
+
+\section{Conception statique : diagramme de classes global}
+Cette section présente la structure statique de l’application à travers le diagramme de classes global. Ce diagramme permet de visualiser les principales entités du CRM, leurs attributs ainsi que les relations entre elles.
+Le diagramme de classes global, présenté dans la figure \ref{fig:class_global}, permet de décrire la structure statique de notre système ainsi que les relations entre ses principales entités.
+
+\newpage
+
+\begin{figure}[H]
+    \raggedright
+    \hspace{-35mm}
+    % Remplacer le chemin ci-dessous par le nom réel de votre fichier
+    \includegraphics[width=0.93\paperwidth,height=0.95\paperheight]{figures/class-crm.pdf}
+    \vfill
+    \caption{Diagramme de classes global du CRM}
+    \label{fig:class_global}
+\end{figure}
+
+\newpage
+
+\subsection{Présentation générale du modèle}
+
+Le modèle de données adopté repose sur une architecture \textit{multi-tenant}. Il distingue une base de données principale, appelée \textit{Master DB}, d’un ensemble de bases de données dédiées aux organisations clientes, appelées \textit{Tenant DB}.
+
+La \textit{Master DB} contient les informations globales relatives aux organisations et aux utilisateurs. La \textit{Tenant DB}, quant à elle, contient les données métier propres à chaque organisation, telles que les comptes, les contacts, les leads, les opportunités et les activités. Cette séparation permet d’assurer une meilleure isolation des données et une meilleure évolutivité de la plateforme.
+
+\subsection{Description des principales classes}
+
+\begin{itemize}
+    \item \textbf{Organization} : représente une organisation cliente de la plateforme. Elle contient les informations générales telles que le nom, les coordonnées, le secteur, le niveau d’abonnement, le nombre maximal d’utilisateurs, ainsi que les informations techniques liées à la base du tenant.
+    
+    \item \textbf{User} : représente un utilisateur de la plateforme. Il possède des informations d’authentification et de profil, ainsi qu’un rôle permettant de définir ses autorisations.
+    
+    \item \textbf{Account} : représente une entreprise, un client ou un compte commercial. Il constitue le point d’ancrage des relations avec les contacts et les opportunités.
+    
+    \item \textbf{Contact} : représente une personne physique rattachée à un compte. Un compte peut posséder plusieurs contacts.
+    
+    \item \textbf{Lead} : représente un prospect non encore converti. Il contient les informations de base relatives à un contact potentiel ainsi que son origine, son statut et une estimation de valeur.
+    
+    \item \textbf{Opportunity} : représente une opportunité commerciale en cours. Elle contient le montant estimé, l’étape du pipeline, la probabilité de succès, la date de clôture prévue et les informations de suivi.
+    
+    \item \textbf{Activity} : représente une action commerciale telle qu’un appel, un e-mail, une réunion, une tâche ou une note. Elle est rattachée au suivi d’un contact ou d’une opportunité.
+\end{itemize}
+
+\subsection{Règles de gestion principales}
+
+Le diagramme de classes met également en évidence plusieurs règles de gestion importantes :
+
+\begin{itemize}
+    \item Chaque entité métier est associée à un \textit{tenant context}, garantissant son appartenance à une organisation donnée.
+    
+    \item Un \textbf{Contact} doit obligatoirement être rattaché à un \textbf{Account}.
+    
+    \item Une \textbf{Opportunity} est liée à un \textbf{Account} et peut être associée à un \textbf{Lead} issu du processus de conversion.
+    
+    \item La probabilité d’une opportunité doit être comprise entre 0 et 100.
+    
+    \item Le revenu attendu d’une opportunité peut être calculé à partir de la formule suivante :
+    \[
+        \text{Expected Revenue} = \text{Amount} \times \frac{\text{Probability}}{100}
+    \]
+    
+    \item Une \textbf{Activity} doit être liée au minimum à un \textbf{Contact} ou à une \textbf{Opportunity}.
+    
+    \item La suppression logique des enregistrements est assurée à travers le champ \texttt{deletedAt}.
+\end{itemize}
+
+\section{Architecture générale de l’application}
+Cette section décrit l’architecture générale adoptée pour la réalisation de l’application. Nous présentons les différentes couches de la solution, le rôle de chaque couche ainsi que les échanges entre le frontend, le backend et la base de données.
+\subsection{Architecture logique}
+
+Notre solution repose sur une architecture logique en trois couches :
+
+\begin{itemize}
+    \item \textbf{Couche de présentation} : elle correspond à l’interface utilisateur développée avec React. Elle permet l’affichage des données, la navigation entre les modules et l’interaction avec les utilisateurs.
+    
+    \item \textbf{Couche métier} : elle correspond au backend développé avec NestJS. Cette couche implémente les règles de gestion, l’authentification, le contrôle d’accès, ainsi que les services liés aux modules CRM.
+    
+    \item \textbf{Couche d’accès aux données} : elle correspond au système de persistance basé sur PostgreSQL. Elle assure le stockage des données globales et des données propres à chaque tenant.
+\end{itemize}
+
+Cette architecture favorise la modularité, la répartition claire des responsabilités et la maintenabilité globale du système.
+
+\subsection{Architecture multi-tenant}
+
+L’un des aspects essentiels de notre projet est son caractère \textit{multi-tenant}. Dans cette approche, chaque organisation dispose d’un espace de données distinct, ce qui permet :
+
+\begin{itemize}
+    \item d’assurer l’isolation des données entre organisations ;
+    \item de renforcer la sécurité et la confidentialité ;
+    \item de faciliter l’évolutivité de la plateforme ;
+    \item d’adapter la solution à plusieurs clients sur une même infrastructure applicative.
+\end{itemize}
+
+Le système s’appuie ainsi sur une base principale pour les métadonnées globales et sur des bases dédiées pour les données métier de chaque organisation.
+
+\subsection{Protocoles et format d’échange des données}
+
+La communication entre le frontend et le backend est assurée à travers des API REST. Les données échangées sont sérialisées au format JSON, ce qui facilite l’interopérabilité entre les différentes couches du système.
+
+Il est important de préciser que les API REST ne font pas partie de la couche présentation. La couche présentation correspond uniquement à l’interface utilisateur développée avec React. Les API REST sont exposées par le backend NestJS et appartiennent à la couche métier, car elles reçoivent les requêtes du frontend, appellent les services applicatifs et retournent les réponses au format JSON.
+
+L’authentification repose sur des mécanismes sécurisés basés sur des jetons d’accès, notamment JWT (JSON Web Token). Ce mécanisme permet de protéger les ressources applicatives et de contrôler l’accès aux fonctionnalités selon le rôle de l’utilisateur.
+
+\subsection{Application du pattern MVC}
+
+Notre application ne repose pas sur un modèle MVC monolithique classique, car le frontend et le backend sont séparés. Cependant, l’organisation du backend NestJS suit une structure proche du pattern MVC.
+
+Dans cette organisation, les contrôleurs jouent le rôle d’entrée des requêtes HTTP. Ils reçoivent les demandes envoyées par l’interface React à travers les API REST. Les services contiennent la logique métier, comme la gestion des leads, des comptes, des contacts, des opportunités et des activités. Les entités TypeORM représentent les modèles de données et assurent le lien avec les tables PostgreSQL.
+
+Ainsi, la vue est représentée côté frontend par les composants React, le contrôleur est représenté par les contrôleurs NestJS, et le modèle est représenté par les entités TypeORM persistées dans la base de données.
+
+\section{Environnement de développement}
+Cette section présente l’environnement matériel et logiciel utilisé durant la réalisation du projet. Elle regroupe les principaux outils, technologies et plateformes qui ont servi au développement, à la modélisation et aux tests de l’application.
+\subsection{Environnement matériel}
+
+Le développement et les tests de l’application ont été réalisés sur des postes de travail personnels compatibles avec les technologies web modernes. Ces machines disposent d’une configuration suffisante pour exécuter l’environnement Node.js, le serveur applicatif, le système de gestion de base de données PostgreSQL ainsi que les outils de modélisation et de test nécessaires au projet.
+
+\subsection{Environnement logiciel}
+
+Les principaux outils et technologies utilisés dans le cadre de ce projet sont présentés dans le tableau \ref{tab:env_logiciel}.
+
+\begin{table}[h]
+\centering
+\caption{Environnement logiciel du projet}
+\label{tab:env_logiciel}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{3.5cm}|p{4.5cm}|p{7cm}|}
+\hline
+\textbf{Catégorie} & \textbf{Outils / Technologies} & \textbf{Rôle} \\
+\hline
+Environnement de développement & Visual Studio Code, Node.js, npm & Édition du code, exécution et gestion des dépendances du projet \\
+\hline
+Gestion de version & Git, GitHub & Suivi des versions, collaboration entre les membres de l’équipe et hébergement du code source \\
+\hline
+Frontend & React 18 (JSX), Vite, CSS custom properties (design system sur-mesure) & Développement de l’interface utilisateur sous forme de SPA, navigation par état React, appels HTTP via fetch natif, palette de commandes, panneau de détail, thème clair/sombre \\
+\hline
+Backend & NestJS, TypeScript, TypeORM, JWT (JSON Web Token), Passport & Développement de l’API, implémentation de la logique métier, persistance et sécurisation de l’accès \\
+\hline
+Base de données & PostgreSQL & Stockage des données globales et des données propres à chaque organisation \\
+\hline
+Modélisation et conception & UML, outil de modélisation de diagrammes & Conception des diagrammes de cas d’utilisation et de classes \\
+\hline
+Test des API & Postman & Validation et test des points d’accès exposés par le backend \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\section*{Conclusion}
+
+Dans ce chapitre, nous avons mené l’analyse des besoins de notre plateforme CRM cloud multi-tenant, identifié les principaux acteurs du système et précisé les besoins fonctionnels et non fonctionnels. Nous avons également présenté le diagramme de cas d’utilisation global, le backlog produit, la planification prévisionnelle des sprints, ainsi que le diagramme de classes global.
+
+Enfin, nous avons décrit l’architecture générale de la solution et l’environnement technique utilisé pour sa mise en œuvre. Ce travail de conception constitue une base solide pour la phase suivante, consacrée à la réalisation et à l’implémentation des différents modules du système.
+\chapter{Sprint 1 : Authentification et mise en place du tableau de bord}
+
+\section*{Introduction}
+
+Après avoir défini les besoins fonctionnels et non fonctionnels de notre application, ainsi que l’architecture générale du système, ce chapitre présente les travaux réalisés durant le premier sprint. Ce sprint constitue une étape importante dans la réalisation du projet, car il permet de mettre en place le socle principal de l’application CRM.
+
+L’objectif de ce sprint est de développer les premières fonctionnalités indispensables à l’utilisation de la plateforme, notamment l’inscription, l’authentification, l’accès sécurisé à l’application, la mise en place de la structure générale de l’interface, ainsi que la réalisation du tableau de bord principal. Ces éléments représentent la base sur laquelle les autres modules métiers du CRM seront construits, tels que la gestion des leads, des comptes, des contacts, des opportunités et des activités.
+
+Dans ce chapitre, nous présentons d’abord le backlog du sprint, puis l’analyse des cas d’utilisation concernés. Ensuite, nous abordons la phase de conception à travers les diagrammes de séquence. Enfin, nous décrivons les interfaces réalisées ainsi que les tests effectués pour valider les fonctionnalités développées.
+
+\section{Backlog du Sprint 1}
+Cette section présente les tâches réalisées durant le premier sprint. Ce sprint concerne principalement l’inscription, l’authentification, la mise en place de la structure générale de l’application et la création du premier tableau de bord.
+Le Sprint 1 a été consacré à la mise en place des fonctionnalités de base de l’application. Il s’agit principalement de permettre à l’utilisateur d’accéder au système, de créer une organisation, de se connecter de manière sécurisée et d’arriver sur un tableau de bord représentant une vue synthétique de l’activité commerciale.
+
+Le tableau \ref{tab:backlog_sprint1} présente les principales tâches réalisées durant ce sprint.
+
+\begin{table}[h]
+\centering
+\caption{Backlog du Sprint 1}
+\label{tab:backlog_sprint1}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Fonctionnalité} & \textbf{Tâches réalisées} \\
+\hline
+
+Inscription et création d'organisation
+&
+Concevoir l’interface d’inscription de l’utilisateur. \newline
+Ajouter les champs nécessaires à la création du compte et de l’organisation. \newline
+Préparer la structure permettant d’associer un utilisateur à une organisation. \newline
+Prévoir la validation des données saisies dans le formulaire. \newline
+Afficher des messages d’erreur en cas de données invalides ou manquantes. \\
+\hline
+
+Authentification des utilisateurs
+&
+Concevoir l’interface de connexion. \newline
+Ajouter les champs e-mail et mot de passe. \newline
+Préparer la logique de connexion avec un système basé sur des jetons d’accès. \newline
+Prévoir la gestion des erreurs d’authentification. \newline
+Rediriger l’utilisateur vers le tableau de bord après une connexion réussie. \\
+\hline
+
+Structure générale de l’application
+&
+Mettre en place le layout principal de l’application. \newline
+Développer une barre latérale de navigation contenant les modules CRM. \newline
+Créer une barre supérieure contenant la recherche, les notifications et le profil utilisateur. \newline
+Configurer la navigation entre les différentes pages de l’application. \newline
+Créer les pages principales sous forme de modules : Dashboard, Leads, Accounts, Contacts, Opportunities, Activities, Reports et Settings. \\
+\hline
+
+Tableau de bord
+&
+Concevoir une interface de tableau de bord moderne et claire. \newline
+Afficher les indicateurs principaux du CRM : nombre de leads, opportunités, contacts et comptes. \newline
+Créer des cartes KPI avec comparaison par rapport à la période précédente. \newline
+Afficher un graphique de prévision des revenus et un graphique radar par type de deal. \newline
+Afficher une liste des activités récentes et un aperçu des opportunités par étape du pipeline. \newline
+Brancher tous les indicateurs sur l’API backend en temps réel. \\
+\hline
+
+Tests et validation
+&
+Tester l’affichage des pages principales. \newline
+Vérifier la navigation entre les modules. \newline
+Vérifier l’affichage responsive de l’interface. \newline
+Tester les formulaires d’inscription et de connexion avec différents scénarios. \newline
+Valider la cohérence visuelle de l’application. \\
+\hline
+
+\end{tabular}
+}
+\end{table}
+
+\section{Analyse des cas d’utilisation du Sprint 1}
+
+Cette section présente les cas d’utilisation traités durant le premier sprint. Ces cas représentent les premières interactions entre l’utilisateur et le système. Ils concernent principalement l’accès à la plateforme et la consultation de l’interface principale après authentification.
+
+\subsection{Diagramme de cas d’utilisation du Sprint 1}
+
+Le diagramme de cas d’utilisation du Sprint 1 illustre les fonctionnalités principales offertes au visiteur et à l’utilisateur CRM durant cette première phase de développement.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le nom réel du diagramme
+    \includegraphics[width=0.85\textwidth]{figures/usecase-sprint1.png}
+    \caption{Diagramme de cas d’utilisation du Sprint 1}
+    \label{fig:usecase_sprint1}
+\end{figure}
+
+Dans ce sprint, le visiteur peut créer un compte, créer son organisation et se connecter à la plateforme. Une fois authentifié, l’utilisateur CRM accède au tableau de bord, consulte les indicateurs principaux et navigue vers les différents modules de l’application.
+
+\subsection{Description textuelle du cas d’utilisation « S’inscrire et créer une organisation »}
+
+Le tableau \ref{tab:cu_inscription} présente la description textuelle du cas d’utilisation « S’inscrire et créer une organisation ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « S’inscrire et créer une organisation »}
+\label{tab:cu_inscription}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & S’inscrire et créer une organisation \\
+\hline
+\textbf{Objectif} & Permettre à un visiteur de créer un compte utilisateur et de créer une organisation afin d’accéder à la plateforme CRM. \\
+\hline
+\textbf{Acteur principal} & Visiteur \\
+\hline
+\textbf{Préconditions} & Le visiteur ne possède pas encore de compte dans l’application. \\
+\hline
+\textbf{Postconditions} & Un compte utilisateur est créé et rattaché à une organisation. L’utilisateur peut ensuite accéder à la plateforme après authentification. \\
+\hline
+\textbf{Scénario nominal} &
+1. Le visiteur accède à la page d’inscription. \newline
+2. Le système affiche le formulaire d’inscription. \newline
+3. Le visiteur saisit ses informations personnelles. \newline
+4. Le visiteur saisit les informations de son organisation. \newline
+5. Le système vérifie la validité des données saisies. \newline
+6. Le système crée le compte utilisateur. \newline
+7. Le système crée l’organisation associée. \newline
+8. Le système confirme la création du compte et redirige l’utilisateur vers la page de connexion ou directement vers le tableau de bord. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Le visiteur saisit des données incomplètes ou invalides. \newline
+2. Le système affiche un message d’erreur. \newline
+3. Le visiteur corrige les informations saisies. \newline
+4. Le système valide à nouveau le formulaire. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d’utilisation « S’authentifier »}
+
+Le tableau \ref{tab:cu_auth} présente la description textuelle du cas d’utilisation « S’authentifier ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « S’authentifier »}
+\label{tab:cu_auth}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & S’authentifier \\
+\hline
+\textbf{Objectif} & Permettre à un utilisateur enregistré d’accéder à son espace CRM de manière sécurisée. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit posséder un compte valide dans le système. \\
+\hline
+\textbf{Postconditions} & L’utilisateur est authentifié et accède au tableau de bord de l’application. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède à la page de connexion. \newline
+2. Le système affiche le formulaire d’authentification. \newline
+3. L’utilisateur saisit son adresse e-mail et son mot de passe. \newline
+4. Le système vérifie les informations saisies. \newline
+5. Si les informations sont correctes, le système génère une session sécurisée. \newline
+6. L’utilisateur est redirigé vers le tableau de bord. \\
+\hline
+\textbf{Scénario alternatif} &
+1. L’utilisateur saisit un e-mail ou un mot de passe incorrect. \newline
+2. Le système refuse l’accès. \newline
+3. Le système affiche un message d’erreur. \newline
+4. L’utilisateur peut corriger les informations et réessayer. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d’utilisation « Consulter le tableau de bord »}
+
+Le tableau \ref{tab:cu_dashboard} présente la description textuelle du cas d’utilisation « Consulter le tableau de bord ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Consulter le tableau de bord »}
+\label{tab:cu_dashboard}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Consulter le tableau de bord \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM d’obtenir une vue synthétique sur l’activité commerciale. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié. \\
+\hline
+\textbf{Postconditions} & L’utilisateur visualise les indicateurs principaux du CRM. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur se connecte à l’application. \newline
+2. Le système redirige l’utilisateur vers le tableau de bord. \newline
+3. Le système affiche les indicateurs principaux. \newline
+4. L’utilisateur consulte les statistiques globales. \newline
+5. L’utilisateur consulte les activités récentes. \newline
+6. L’utilisateur consulte l’état du pipeline commercial. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucune donnée réelle n’est encore disponible. \newline
+2. Le système affiche des données statiques temporaires afin de présenter la structure finale de l’interface. \newline
+3. Ces données seront remplacées par les données provenant du backend lors de l’intégration. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\section{Conception}
+
+La conception du Sprint 1 permet de représenter les interactions principales entre l’utilisateur, l’interface frontend, le backend et la base de données. Cette phase facilite la compréhension du fonctionnement interne des fonctionnalités avant leur implémentation.
+
+Dans notre cas, les principaux scénarios étudiés sont l’inscription, l’authentification et la consultation du tableau de bord.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Inscription »}
+
+La figure \ref{fig:seq_inscription} présente le diagramme de séquence relatif au processus d’inscription et de création d’organisation.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le nom réel du diagramme
+    \includegraphics[width=0.9\textwidth]{figures/sequence-inscription.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Inscription »}
+    \label{fig:seq_inscription}
+\end{figure}
+
+Le processus commence lorsque le visiteur saisit les informations nécessaires dans le formulaire d’inscription. L’interface envoie ensuite les données au serveur. Le backend vérifie les informations reçues, crée l’utilisateur, crée l’organisation associée et prépare l’environnement nécessaire à cette organisation. Une fois l’opération terminée, le système retourne une réponse à l’interface afin d’informer l’utilisateur du résultat.
+
+Cette étape est importante dans notre projet, car l’application repose sur une logique multi-tenant. Ainsi, chaque organisation doit disposer de son propre espace de données, séparé des autres organisations.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Authentification »}
+
+La figure \ref{fig:seq_auth} présente le diagramme de séquence du processus d’authentification.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le nom réel du diagramme
+    \includegraphics[width=0.9\textwidth]{figures/sequence-authentification.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Authentification »}
+    \label{fig:seq_auth}
+\end{figure}
+
+Dans ce scénario, l’utilisateur saisit son e-mail et son mot de passe dans le formulaire de connexion. L’interface transmet ces informations au backend, qui vérifie l’existence de l’utilisateur et la validité du mot de passe. Si les informations sont correctes, le système autorise l’accès à l’application et redirige l’utilisateur vers le tableau de bord. Dans le cas contraire, un message d’erreur est affiché.
+
+Ce mécanisme constitue une première couche de sécurité, car seules les personnes disposant d’un compte valide peuvent accéder aux fonctionnalités internes du CRM.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Consultation du tableau de bord »}
+
+La figure \ref{fig:seq_dashboard} présente le diagramme de séquence relatif à la consultation du tableau de bord.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le nom réel du diagramme
+    \includegraphics[width=0.9\textwidth]{figures/sequence-dashboard.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Consultation du tableau de bord »}
+    \label{fig:seq_dashboard}
+\end{figure}
+
+Après authentification, l’utilisateur accède à la page principale de l’application. Le tableau de bord affiche les informations essentielles liées à l’activité commerciale : nombre de leads, nombre d’opportunités, contrats gagnés, chiffre d’affaires, activités récentes et aperçu du pipeline commercial.
+
+Dans cette première version, les données affichées sont statiques. Elles permettent de valider la structure visuelle et fonctionnelle du tableau de bord avant l’intégration avec le backend.
+
+\section{Réalisation}
+
+La phase de réalisation du Sprint 1 a permis de concrétiser les choix fonctionnels et techniques définis précédemment. Cette partie présente les principales interfaces développées durant ce sprint.
+
+\subsection{Interface d’inscription}
+
+L’interface d’inscription permet à un nouveau visiteur de créer un compte et de renseigner les informations relatives à son organisation. Cette étape est essentielle dans notre application, car l’organisation représente le point d’entrée du système multi-tenant.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-inscription.png}
+    \caption{Interface d’inscription}
+    \label{fig:interface_inscription}
+\end{figure}
+
+Cette interface a été conçue de manière simple et claire afin de faciliter la saisie des informations. Les champs doivent permettre d’identifier l’utilisateur et l’organisation à laquelle il appartient. L’objectif est de rendre le processus de création de compte rapide et compréhensible.
+
+\subsection{Interface d’authentification}
+
+L’interface d’authentification permet aux utilisateurs enregistrés d’accéder à l’application. Elle contient principalement un champ pour l’adresse e-mail, un champ pour le mot de passe et un bouton de connexion.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-login.png}
+    \caption{Interface d’authentification}
+    \label{fig:interface_login}
+\end{figure}
+
+Cette page représente le point d’entrée principal de l’application pour les utilisateurs déjà inscrits. Elle doit être claire, sécurisée et cohérente avec l’identité visuelle du reste de la plateforme.
+
+\subsection{Interface du tableau de bord}
+
+Le tableau de bord représente la première page affichée après la connexion. Il permet à l’utilisateur d’obtenir une vision globale de l’activité commerciale.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-dashboard.png}
+    \caption{Interface du tableau de bord}
+    \label{fig:interface_dashboard}
+\end{figure}
+
+Le tableau de bord développé contient plusieurs sections importantes :
+
+\begin{itemize}
+    \item des cartes statistiques affichant les principaux indicateurs ;
+    \item une section des activités récentes ;
+    \item une section présentant les opportunités par étape du pipeline ;
+    \item une organisation visuelle claire basée sur des composants réutilisables.
+\end{itemize}
+
+Les indicateurs affichés dans cette version sont basés sur des données statiques. Ce choix a permis de finaliser l’interface frontend avant la mise en place complète du backend. Dans une étape ultérieure, ces données seront récupérées dynamiquement à partir de l’API.
+
+\subsection{Structure de navigation}
+
+La structure de navigation mise en place constitue un élément important du Sprint 1. Elle permet à l’utilisateur de se déplacer facilement entre les différents modules de l’application.
+
+Les principales pages préparées durant ce sprint sont :
+
+\begin{itemize}
+    \item \textbf{Dashboard} : vue globale sur l’activité commerciale ;
+    \item \textbf{Leads} : gestion des prospects ;
+    \item \textbf{Accounts} : gestion des entreprises ou comptes clients ;
+    \item \textbf{Contacts} : gestion des personnes liées aux comptes ;
+    \item \textbf{Opportunities} : suivi des opportunités commerciales ;
+    \item \textbf{Activities} : suivi des tâches, appels, réunions et notes ;
+    \item \textbf{Reports} : consultation des rapports ;
+    \item \textbf{Settings} : paramètres de l’application.
+\end{itemize}
+
+Cette structure prépare les prochains sprints, qui seront consacrés au développement détaillé des modules métiers du CRM.
+
+\section{Tests et validation}
+
+Afin de vérifier le bon fonctionnement des éléments réalisés durant le Sprint 1, plusieurs tests ont été effectués. Ces tests ont concerné principalement l’affichage des interfaces, la navigation entre les pages et la cohérence générale de l’expérience utilisateur.
+
+Les tests réalisés sont les suivants :
+
+\begin{itemize}
+    \item vérification de l’affichage correct de l’interface d’inscription ;
+    \item vérification de l’affichage correct de l’interface d’authentification ;
+    \item vérification de la navigation entre les différentes pages ;
+    \item vérification de l’affichage du tableau de bord ;
+    \item vérification de la cohérence visuelle entre les composants ;
+    \item vérification de l’adaptation de l’interface à différentes tailles d’écran ;
+    \item vérification de la présence des messages d’erreur prévus pour les formulaires.
+\end{itemize}
+
+Dans cette phase, les tests ont porté à la fois sur la partie frontend et sur l’intégration avec le backend. Les formulaires d’inscription et de connexion ont été testés avec des données réelles, et le flux JWT a été validé de bout en bout.
+
+Cette approche a permis de valider l’ergonomie de l’interface, la structure des pages, la fluidité de navigation et le bon fonctionnement de l’authentification multi-tenant.
+
+\section*{Conclusion}
+
+Dans ce chapitre, nous avons présenté les travaux réalisés durant le premier sprint. Ce sprint a permis de mettre en place les bases essentielles de notre application CRM, notamment l’inscription, l’authentification, la structure générale de l’interface et le tableau de bord principal.
+
+Nous avons également présenté l’analyse des cas d’utilisation concernés, les éléments de conception à travers les diagrammes de séquence, ainsi que les principales interfaces développées. Les tests effectués ont permis de vérifier le bon fonctionnement de la navigation et la cohérence visuelle de l’application.
+
+Le Sprint 1 constitue donc une étape fondamentale dans la réalisation du projet. Il prépare les prochains travaux, qui seront consacrés à la réalisation des modules métiers du CRM, notamment la gestion des leads, des comptes, des contacts, des opportunités et des activités commerciales.
+
+\chapter{Sprint 2 : Gestion des leads, comptes et contacts}
+
+\section*{Introduction}
+
+Après la mise en place du socle principal de l’application durant le premier sprint, notamment l’authentification, la structure de navigation et le tableau de bord, ce chapitre présente les travaux réalisés dans le cadre du deuxième sprint.
+
+Ce sprint marque le début de la réalisation des modules métiers du CRM. Il est principalement consacré à la gestion des leads, des comptes et des contacts. Ces trois modules représentent une partie essentielle du cycle de vente, car ils permettent de centraliser les prospects, les entreprises clientes et les interlocuteurs associés.
+
+Dans une application CRM, le lead représente généralement un prospect qui n’a pas encore été qualifié. Lorsqu’il devient intéressant pour l’entreprise, il peut être converti en données commerciales plus structurées, notamment un compte, un contact et éventuellement une opportunité. Ce sprint permet donc de mettre en place les premières fonctionnalités nécessaires au suivi de la relation client.
+
+Dans ce chapitre, nous présentons le backlog du Sprint 2, l’analyse des cas d’utilisation, la conception à travers des diagrammes de séquence, puis les interfaces réalisées et les tests effectués.
+
+\section{Backlog du Sprint 2}
+
+Le Sprint 2 a pour objectif principal de développer les modules de base liés à la gestion des informations commerciales. Ces modules permettent à l’utilisateur CRM d’ajouter, consulter, rechercher, modifier et supprimer des enregistrements liés aux leads, aux comptes et aux contacts.
+
+Le tableau \ref{tab:backlog_sprint2} présente les principales tâches réalisées durant ce sprint.
+
+\begin{table}[h]
+\centering
+\caption{Backlog du Sprint 2}
+\label{tab:backlog_sprint2}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Fonctionnalité} & \textbf{Tâches réalisées} \\
+\hline
+
+Gestion des leads
+&
+Concevoir l’interface de gestion des leads. \newline
+Créer une table affichant la liste des prospects chargée depuis l’API \texttt{GET /leads}. \newline
+Ajouter les champs principaux : nom, entreprise, e-mail, téléphone, statut, source, propriétaire et date de création. \newline
+Mettre en place des badges visuels pour représenter l’état du lead. \newline
+Ajouter une zone de recherche et des filtres par statut et par propriétaire (\textit{Mes leads}). \newline
+Implémenter les actions de création, modification et suppression avec persistance en base. \\
+\hline
+
+Conversion des leads
+&
+Prévoir le scénario de conversion d’un lead qualifié. \newline
+Définir la logique métier de transformation d’un lead en compte, contact et opportunité. \newline
+Préparer l’emplacement de l’action de conversion dans l’interface. \newline
+Identifier les données nécessaires à la création des nouveaux enregistrements après conversion. \newline
+Préparer la structure frontend pour l’intégration future avec le backend. \\
+\hline
+
+Gestion des comptes
+&
+Concevoir l’interface de gestion des comptes. \newline
+Créer une table affichant les entreprises ou organisations clientes via \texttt{GET /accounts}. \newline
+Ajouter les champs principaux : nom du compte, secteur, site web, revenu annuel, propriétaire, type et date de création. \newline
+Mettre en place des filtres par type (client, prospect, partenaire) et le filtre \textit{Mes comptes}. \newline
+Implémenter la sélection multiple, la suppression en lot et l’export CSV. \newline
+Afficher les opportunités ouvertes et l’activité récente dans le panneau de détail du compte. \\
+\hline
+
+Gestion des contacts
+&
+Concevoir l’interface de gestion des contacts. \newline
+Créer une table affichant les personnes liées aux comptes via \texttt{GET /contacts}. \newline
+Ajouter les champs principaux : nom, poste, département, compte associé, e-mail, téléphone, statut, propriétaire et dernière mise à jour. \newline
+Mettre en place des filtres par statut et le filtre \textit{Mes contacts}. \newline
+Implémenter les actions de création, modification et suppression avec persistance. \newline
+Afficher dans le panneau de détail : les opportunités liées au compte et l’historique des activités du contact. \\
+\hline
+
+Tests et validation
+&
+Tester l’affichage des listes de leads, comptes et contacts. \newline
+Vérifier la cohérence des filtres et de la recherche. \newline
+Vérifier l’affichage des badges de statut. \newline
+Vérifier la navigation entre les modules. \newline
+Valider l’homogénéité graphique entre les pages. \newline
+Tester l’adaptation de l’interface aux différentes tailles d’écran. \\
+\hline
+
+\end{tabular}
+}
+\end{table}
+
+\section{Analyse des cas d’utilisation du Sprint 2}
+
+Cette section décrit les cas d’utilisation relatifs aux modules Leads, Comptes et Contacts. Elle permet de préciser les actions que l’utilisateur CRM peut effectuer sur ces entités, comme l’ajout, la consultation, la modification, la suppression et la conversion d’un lead.
+
+Les principales fonctionnalités étudiées sont la gestion des leads, la conversion d’un lead, la gestion des comptes et la gestion des contacts.
+
+\subsection{Diagramme de cas d’utilisation du Sprint 2}
+
+Le diagramme de cas d’utilisation du Sprint 2 illustre les principales interactions entre l’utilisateur CRM et les modules de gestion des leads, comptes et contacts.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/usecase-sprint2.png}
+    \caption{Diagramme de cas d’utilisation du Sprint 2}
+    \label{fig:usecase_sprint2}
+\end{figure}
+
+Ce diagramme montre que l’utilisateur CRM peut gérer les leads, les comptes et les contacts. La gestion d’un lead comprend la consultation, l’ajout, la modification, la suppression et la conversion. La conversion représente une opération importante, car elle permet de transformer un prospect qualifié en éléments exploitables dans le CRM.
+
+\subsection{Description textuelle du cas d’utilisation « Gérer les leads »}
+
+Le tableau \ref{tab:cu_gerer_leads} présente la description textuelle du cas d’utilisation « Gérer les leads ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Gérer les leads »}
+\label{tab:cu_gerer_leads}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Gérer les leads \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM de gérer les prospects depuis leur création jusqu’à leur qualification. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié et avoir accès au module Leads. \\
+\hline
+\textbf{Postconditions} & La liste des leads est consultable et les informations peuvent être ajoutées, modifiées, supprimées ou filtrées. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède au module Leads. \newline
+2. Le système affiche la liste des leads existants. \newline
+3. L’utilisateur peut rechercher un lead par nom, entreprise ou e-mail. \newline
+4. L’utilisateur peut filtrer les leads selon leur statut ou leur source. \newline
+5. L’utilisateur peut ajouter un nouveau lead. \newline
+6. L’utilisateur peut modifier ou supprimer un lead existant. \newline
+7. Le système met à jour l’affichage de la liste. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucun lead ne correspond aux critères de recherche. \newline
+2. Le système affiche une liste vide ou un message indiquant qu’aucun résultat n’a été trouvé. \newline
+3. Si les données saisies sont invalides, le système affiche un message d’erreur. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d’utilisation « Convertir un lead »}
+
+Le tableau \ref{tab:cu_convertir_lead} présente la description textuelle du cas d’utilisation « Convertir un lead ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Convertir un lead »}
+\label{tab:cu_convertir_lead}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Convertir un lead \\
+\hline
+\textbf{Objectif} & Transformer un lead qualifié en compte, contact et éventuellement en opportunité commerciale. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié. Le lead doit exister dans le système et avoir un statut permettant sa conversion. \\
+\hline
+\textbf{Postconditions} & Le lead est marqué comme converti et de nouveaux enregistrements sont préparés ou créés dans les modules Comptes, Contacts et Opportunités. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède à la liste des leads. \newline
+2. L’utilisateur sélectionne un lead qualifié. \newline
+3. L’utilisateur choisit l’action de conversion. \newline
+4. Le système récupère les informations du lead. \newline
+5. Le système prépare la création d’un compte à partir de l’entreprise du lead. \newline
+6. Le système prépare la création d’un contact à partir des informations personnelles du lead. \newline
+7. Le système prépare éventuellement une opportunité commerciale. \newline
+8. Le lead est marqué comme converti. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Le lead n’est pas qualifié. \newline
+2. Le système refuse la conversion ou affiche un message demandant de qualifier le lead avant de continuer. \newline
+3. Si certaines informations sont manquantes, le système demande à l’utilisateur de les compléter. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d’utilisation « Gérer les comptes »}
+
+Le tableau \ref{tab:cu_gerer_comptes} présente la description textuelle du cas d’utilisation « Gérer les comptes ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Gérer les comptes »}
+\label{tab:cu_gerer_comptes}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Gérer les comptes \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM de gérer les entreprises, clients ou organisations suivis par l’équipe commerciale. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié et avoir accès au module Comptes. \\
+\hline
+\textbf{Postconditions} & Les comptes sont affichés et peuvent être ajoutés, consultés, modifiés ou supprimés. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède au module Comptes. \newline
+2. Le système affiche la liste des comptes. \newline
+3. L’utilisateur peut rechercher un compte. \newline
+4. L’utilisateur peut filtrer les comptes selon le secteur ou le statut. \newline
+5. L’utilisateur peut ajouter un nouveau compte. \newline
+6. L’utilisateur peut modifier ou supprimer un compte existant. \newline
+7. Le système met à jour la liste des comptes. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucun compte ne correspond aux critères de recherche. \newline
+2. Le système affiche un message indiquant qu’aucun résultat n’a été trouvé. \newline
+3. Si les données saisies sont invalides, le système affiche un message d’erreur. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d’utilisation « Gérer les contacts »}
+
+Le tableau \ref{tab:cu_gerer_contacts} présente la description textuelle du cas d’utilisation « Gérer les contacts ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Gérer les contacts »}
+\label{tab:cu_gerer_contacts}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Gérer les contacts \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM de gérer les personnes liées aux comptes clients. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié et avoir accès au module Contacts. \\
+\hline
+\textbf{Postconditions} & Les contacts sont affichés et peuvent être ajoutés, consultés, modifiés ou supprimés. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède au module Contacts. \newline
+2. Le système affiche la liste des contacts. \newline
+3. L’utilisateur peut rechercher un contact. \newline
+4. L’utilisateur peut filtrer les contacts selon le compte ou le statut. \newline
+5. L’utilisateur peut ajouter un nouveau contact. \newline
+6. L’utilisateur peut modifier ou supprimer un contact existant. \newline
+7. Le système met à jour la liste des contacts. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucun contact ne correspond aux critères de recherche. \newline
+2. Le système affiche un message indiquant qu’aucun résultat n’a été trouvé. \newline
+3. Si le contact n’est pas lié à un compte valide, le système demande de sélectionner un compte existant. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\section{Conception}
+
+La conception du Sprint 2 permet de représenter le comportement des principales fonctionnalités métiers mises en place. Nous présentons dans cette partie les diagrammes de séquence relatifs à l’ajout d’un lead et à la conversion d’un lead. Ces deux scénarios sont représentatifs du fonctionnement central du CRM, car ils montrent le passage d’un prospect vers des données commerciales plus structurées.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Ajouter un lead »}
+
+La figure \ref{fig:seq_ajouter_lead} présente le diagramme de séquence du cas d’utilisation « Ajouter un lead ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-ajouter-lead.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Ajouter un lead »}
+    \label{fig:seq_ajouter_lead}
+\end{figure}
+
+Ce diagramme décrit le processus d’ajout d’un nouveau lead. L’utilisateur saisit les informations du prospect à partir de l’interface. Les données sont ensuite validées avant d’être envoyées au service responsable de la gestion des leads. Une fois l’enregistrement créé, la liste des leads est mise à jour afin d’afficher le nouveau prospect.
+
+Dans cette phase, l’interface a été préparée avec des données statiques. Cette approche permet de valider l’organisation visuelle du module avant l’intégration complète avec les services backend.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Convertir un lead »}
+
+La figure \ref{fig:seq_convertir_lead} présente le diagramme de séquence du cas d’utilisation « Convertir un lead ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-convertir-lead.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Convertir un lead »}
+    \label{fig:seq_convertir_lead}
+\end{figure}
+
+Ce diagramme représente le scénario de conversion d’un lead qualifié. L’utilisateur choisit un lead et lance l’action de conversion. Le système vérifie le statut du lead, récupère ses informations, puis prépare la création d’un compte, d’un contact et d’une opportunité. Cette opération traduit une logique métier importante dans le CRM, car elle marque le passage d’un simple prospect vers une relation commerciale plus concrète.
+
+\section{Réalisation}
+
+La phase de réalisation du Sprint 2 a permis de développer les premières interfaces métiers du CRM. Ces interfaces respectent la structure visuelle déjà mise en place durant le Sprint 1. Elles utilisent la même barre latérale, la même barre supérieure et les mêmes principes de présentation.
+
+\subsection{Interface de gestion des leads}
+
+L’interface de gestion des leads permet à l’utilisateur CRM de consulter la liste des prospects et de suivre leur état d’avancement.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-leads.png}
+    \caption{Interface de gestion des leads}
+    \label{fig:interface_leads}
+\end{figure}
+
+Cette page contient une table présentant les informations essentielles des leads : nom, entreprise, e-mail, téléphone, statut, source, propriétaire et date de création. Elle contient également une zone de recherche, des filtres et des actions permettant de consulter, modifier ou supprimer un enregistrement.
+
+Les statuts des leads sont représentés par des badges visuels afin de rendre la lecture plus rapide. Par exemple, un lead peut être nouveau, contacté, qualifié ou non qualifié. Cette représentation facilite le travail de l’utilisateur CRM, qui peut identifier rapidement les prospects prioritaires.
+
+\subsection{Interface de gestion des comptes}
+
+L’interface de gestion des comptes permet de centraliser les informations relatives aux entreprises ou organisations suivies par l’équipe commerciale.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-accounts.png}
+    \caption{Interface de gestion des comptes}
+    \label{fig:interface_accounts}
+\end{figure}
+
+Cette interface affiche les comptes sous forme de table. Chaque compte contient des informations telles que le nom de l’entreprise, le secteur d’activité, le téléphone, l’e-mail, la ville, le pays, le propriétaire, le statut et la date de création.
+
+Le module Comptes joue un rôle important dans la structure du CRM, car il sert de point de rattachement pour les contacts et les opportunités. Il permet ainsi de conserver une vision claire des relations entre l’entreprise et ses clients ou prospects.
+
+\subsection{Interface de gestion des contacts}
+
+L’interface de gestion des contacts permet de gérer les personnes liées aux comptes.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-contacts.png}
+    \caption{Interface de gestion des contacts}
+    \label{fig:interface_contacts}
+\end{figure}
+
+Chaque contact est associé à un compte et contient des informations utiles pour le suivi commercial, telles que le nom, le poste, l’e-mail, le téléphone, le statut, le propriétaire et la dernière activité. Cette organisation permet de relier les interactions commerciales aux bonnes personnes et aux bonnes entreprises.
+
+L’objectif de ce module est de faciliter le suivi des interlocuteurs et de garder une trace structurée des relations entre l’équipe commerciale et les clients.
+
+\section{Tests et validation}
+
+Les tests effectués durant ce sprint ont porté principalement sur les interfaces de gestion des leads, des comptes et des contacts. L’objectif était de vérifier que les pages développées respectent les besoins fonctionnels définis et qu’elles restent cohérentes avec le reste de l’application.
+
+Les principaux tests réalisés sont les suivants :
+
+\begin{itemize}
+    \item vérification de l’affichage correct de la liste des leads ;
+    \item vérification de l’affichage correct de la liste des comptes ;
+    \item vérification de l’affichage correct de la liste des contacts ;
+    \item vérification du fonctionnement visuel des filtres et de la recherche ;
+    \item vérification de l’affichage des badges de statut ;
+    \item vérification de la cohérence des colonnes dans les différentes tables ;
+    \item vérification de la présence des boutons d’action ;
+    \item vérification de l’adaptation de l’interface aux différentes tailles d’écran ;
+    \item vérification de la cohérence graphique avec le tableau de bord réalisé dans le sprint précédent.
+\end{itemize}
+
+Dans cette phase, les tests ont porté sur le cycle complet de chaque module : création d’un enregistrement via le formulaire, vérification de son apparition dans la liste, modification, puis suppression. La conversion de lead a également été testée de bout en bout — vérification que le compte, le contact et l’opportunité sont bien créés et que le lead passe à l’état \textit{converti}.
+
+\section*{Conclusion}
+
+Dans ce chapitre, nous avons présenté les travaux réalisés durant le deuxième sprint. Ce sprint a permis de développer les premiers modules métiers de notre application CRM, à savoir la gestion des leads, des comptes et des contacts.
+
+Nous avons commencé par présenter le backlog du sprint, puis nous avons analysé les principaux cas d’utilisation. Ensuite, nous avons décrit la conception des scénarios les plus importants, notamment l’ajout et la conversion d’un lead. Enfin, nous avons présenté les interfaces réalisées et les tests effectués.
+
+Le Sprint 2 représente une étape importante dans la construction du CRM, car il introduit la gestion structurée des prospects et des relations clients. Le sprint suivant sera consacré à la gestion des opportunités commerciales et des activités, qui permettront de suivre l’évolution du pipeline de vente et les interactions avec les clients.
+\chapter{Sprint 3 : Gestion des opportunités et des activités commerciales}
+
+\section*{Introduction}
+
+Après la réalisation des modules de gestion des leads, des comptes et des contacts, ce chapitre présente les travaux effectués durant le troisième sprint. Ce sprint s’inscrit dans la continuité logique du cycle de vente d’un CRM. En effet, après l’identification et la qualification des prospects, l’application doit permettre de suivre les opportunités commerciales et les différentes actions effectuées par les utilisateurs.
+
+Le Sprint 3 est donc consacré à la gestion des opportunités et des activités commerciales. Une opportunité représente une vente potentielle en cours de traitement. Elle possède généralement une valeur estimée, une étape dans le pipeline commercial, une probabilité de réussite et une date de clôture prévue. Les activités, quant à elles, permettent de conserver l’historique des interactions avec les prospects, les contacts ou les clients, comme les appels, réunions, tâches, notes et e-mails.
+
+Dans ce chapitre, nous présentons le backlog du Sprint 3, l’analyse des cas d’utilisation, la conception des principaux scénarios, puis les interfaces réalisées et les tests effectués.
+
+\section{Backlog du Sprint 3}
+
+Le Sprint 3 a pour objectif de compléter le cycle commercial du CRM à travers la gestion des opportunités et des activités. Ces deux modules permettent à l’utilisateur CRM de suivre l’évolution des ventes et de garder une trace des actions réalisées avec les clients.
+
+Le tableau \ref{tab:backlog_sprint3} présente les principales tâches réalisées durant ce sprint.
+
+\begin{table}[h]
+\centering
+\caption{Backlog du Sprint 3}
+\label{tab:backlog_sprint3}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Fonctionnalité} & \textbf{Tâches réalisées} \\
+\hline
+
+Gestion des opportunités
+&
+Concevoir l’interface de gestion des opportunités commerciales. \newline
+Créer une table affichant la liste des opportunités chargée depuis \texttt{GET /opportunities}. \newline
+Ajouter les champs principaux : nom, compte lié, valeur, étape, probabilité, propriétaire et date de clôture. \newline
+Mettre en place des badges visuels colorés par étape et le filtre \textit{Mes opportunités}. \newline
+Implémenter les actions de création, modification et suppression avec persistance en base. \newline
+Afficher le flux d’activités lié à chaque opportunité dans le panneau de détail. \\
+\hline
+
+Suivi du pipeline commercial (vue Kanban)
+&
+Développer une vue Kanban interactive organisée par étape : Lead, Qualifier, Proposition, Négocier, Fermé. \newline
+Implémenter le glisser-déposer des cartes entre les colonnes avec persistance via \texttt{PUT /opportunities/:id}. \newline
+Afficher la valeur totale du pipeline par colonne. \newline
+Calculer et afficher le revenu pondéré par opportunité (montant $\times$ probabilité). \newline
+Ajouter une vue liste alternative avec filtre par date de clôture et bascule Kanban/Liste. \\
+\hline
+
+Clôture des opportunités
+&
+Prévoir la clôture d’une opportunité en succès ou en échec. \newline
+Mettre en évidence les statuts \textit{Fermé - Gagné} et \textit{Fermé - Perdu}. \newline
+Préparer la mise à jour de la date de clôture réelle. \newline
+Prévoir l’impact de la clôture sur les statistiques du tableau de bord. \\
+\hline
+
+Gestion des activités commerciales
+&
+Concevoir l’interface de gestion des activités. \newline
+Créer une table affichant les appels, réunions, tâches, e-mails et notes via \texttt{GET /activities}. \newline
+Ajouter les champs principaux : type, titre, description, date, statut et éléments associés. \newline
+Implémenter la liaison d’une activité avec un contact (\textit{WhoId}) et une opportunité (\textit{WhatId}) simultanément. \newline
+Afficher des badges colorés par type et permettre le marquage rapide comme terminé. \newline
+Permettre la création rapide d’une activité pré-remplie depuis le panneau de détail d’un contact ou d’une opportunité (boutons Email, Appel, Réunion, Note). \\
+\hline
+
+Tests et validation
+&
+Tester l’affichage de la liste des opportunités. \newline
+Tester l’affichage de la liste des activités. \newline
+Vérifier les filtres, la recherche et les badges de statut. \newline
+Vérifier la cohérence des colonnes et des actions. \newline
+Valider la cohérence graphique avec les modules précédents. \newline
+Tester l’adaptation de l’interface aux différentes tailles d’écran. \\
+\hline
+
+\end{tabular}
+}
+\end{table}
+
+\section{Analyse des cas d’utilisation du Sprint 3}
+
+Cette section présente les cas d’utilisation traités durant le troisième sprint. Les fonctionnalités étudiées concernent principalement la gestion des opportunités, la clôture d’une opportunité et la gestion des activités commerciales.
+
+\subsection{Diagramme de cas d’utilisation du Sprint 3}
+
+Le diagramme de cas d’utilisation du Sprint 3 illustre les principales interactions entre l’utilisateur CRM et les modules Opportunités et Activités.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/usecase-sprint3.png}
+    \caption{Diagramme de cas d’utilisation du Sprint 3}
+    \label{fig:usecase_sprint3}
+\end{figure}
+
+Ce diagramme montre que l’utilisateur CRM peut gérer les opportunités, suivre leur progression dans le pipeline commercial, clôturer une opportunité et gérer les activités liées aux clients ou aux ventes en cours.
+
+\subsection{Description textuelle du cas d'utilisation : Gérer les opportunités}
+
+Le tableau \ref{tab:cu_gerer_opportunites} présente la description textuelle du cas d'utilisation « Gérer les opportunités ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Gérer les opportunités »}
+\label{tab:cu_gerer_opportunites}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Gérer les opportunités \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM de gérer les ventes potentielles et de suivre leur avancement dans le pipeline commercial. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié et avoir accès au module Opportunités. \\
+\hline
+\textbf{Postconditions} & Les opportunités sont affichées et peuvent être ajoutées, consultées, modifiées, supprimées ou filtrées. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède au module Opportunités. \newline
+2. Le système affiche la liste des opportunités existantes. \newline
+3. L’utilisateur peut rechercher une opportunité par nom, compte ou contact. \newline
+4. L’utilisateur peut filtrer les opportunités par étape ou par propriétaire. \newline
+5. L’utilisateur peut ajouter une nouvelle opportunité. \newline
+6. L’utilisateur peut modifier ou supprimer une opportunité existante. \newline
+7. Le système met à jour l’affichage de la liste. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucune opportunité ne correspond aux critères de recherche. \newline
+2. Le système affiche une liste vide ou un message indiquant qu’aucun résultat n’a été trouvé. \newline
+3. Si les données saisies sont invalides, le système affiche un message d’erreur. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d'utilisation : Clôturer une opportunité}
+
+Le tableau \ref{tab:cu_cloturer_opportunite} présente la description textuelle du cas d'utilisation « Clôturer une opportunité ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Clôturer une opportunité »}
+\label{tab:cu_cloturer_opportunite}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Clôturer une opportunité \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM de marquer une opportunité comme gagnée ou perdue. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié. L’opportunité doit exister dans le système et être en cours de traitement. \\
+\hline
+\textbf{Postconditions} & L’opportunité est clôturée avec le statut \textit{Fermé - Gagné} ou \textit{Fermé - Perdu}. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède à la liste des opportunités. \newline
+2. L’utilisateur sélectionne une opportunité. \newline
+3. L’utilisateur choisit l’action de clôture. \newline
+4. Le système demande le résultat de la clôture. \newline
+5. L’utilisateur choisit \textit{Fermé - Gagné} ou \textit{Fermé - Perdu}. \newline
+6. Le système met à jour l’étape de l’opportunité. \newline
+7. Le système met à jour la date de clôture. \newline
+8. Le système affiche un message de confirmation. \\
+\hline
+\textbf{Scénario alternatif} &
+1. L’utilisateur annule l’action de clôture. \newline
+2. Le système conserve l’état actuel de l’opportunité. \newline
+3. Si l’opportunité est déjà clôturée, le système empêche une nouvelle clôture ou demande une confirmation supplémentaire. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d'utilisation : Gérer les activités}
+
+Le tableau \ref{tab:cu_gerer_activites} présente la description textuelle du cas d'utilisation « Gérer les activités ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Gérer les activités »}
+\label{tab:cu_gerer_activites}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Gérer les activités \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM de suivre les actions commerciales réalisées avec les clients ou prospects. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié et avoir accès au module Activités. \\
+\hline
+\textbf{Postconditions} & Les activités sont affichées et peuvent être ajoutées, modifiées, supprimées ou marquées comme terminées. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède au module Activités. \newline
+2. Le système affiche la liste des activités existantes. \newline
+3. L’utilisateur peut filtrer les activités par type ou par statut. \newline
+4. L’utilisateur peut ajouter une nouvelle activité. \newline
+5. L’utilisateur peut associer l’activité à un contact ou à une opportunité. \newline
+6. L’utilisateur peut modifier ou supprimer une activité existante. \newline
+7. L’utilisateur peut marquer une activité comme terminée. \newline
+8. Le système met à jour l’affichage de la liste. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucune activité ne correspond aux critères sélectionnés. \newline
+2. Le système affiche un message indiquant qu’aucune activité n’a été trouvée. \newline
+3. Si l’activité n’est liée ni à un contact ni à une opportunité, le système demande de compléter la liaison. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\section{Conception}
+
+La conception du Sprint 3 permet de décrire le comportement des fonctionnalités liées aux opportunités et aux activités. Les scénarios les plus importants sont l’ajout d’une opportunité, la clôture d’une opportunité et l’ajout d’une activité commerciale.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Ajouter une opportunité »}
+
+La figure \ref{fig:seq_ajouter_opportunite} présente le diagramme de séquence du cas d’utilisation « Ajouter une opportunité ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-ajouter-opportunite.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Ajouter une opportunité »}
+    \label{fig:seq_ajouter_opportunite}
+\end{figure}
+
+Ce diagramme décrit le processus d’ajout d’une nouvelle opportunité commerciale. L’utilisateur saisit les informations nécessaires, telles que le nom de l’opportunité, le compte associé, la valeur estimée, l’étape, la probabilité et la date de clôture prévue. Le système vérifie ensuite les données saisies avant d’ajouter l’opportunité à la liste.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Clôturer une opportunité »}
+
+La figure \ref{fig:seq_cloturer_opportunite} présente le diagramme de séquence du cas d’utilisation « Clôturer une opportunité ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-cloturer-opportunite.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Clôturer une opportunité »}
+    \label{fig:seq_cloturer_opportunite}
+\end{figure}
+
+Ce diagramme représente le scénario de clôture d’une opportunité. L’utilisateur sélectionne une opportunité en cours, choisit de la clôturer, puis indique le résultat final. Si l’opportunité est gagnée, elle contribue aux statistiques commerciales. Si elle est perdue, elle reste enregistrée afin de conserver l’historique du pipeline.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Ajouter une activité »}
+
+La figure \ref{fig:seq_ajouter_activite} présente le diagramme de séquence du cas d’utilisation « Ajouter une activité ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-ajouter-activite.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Ajouter une activité »}
+    \label{fig:seq_ajouter_activite}
+\end{figure}
+
+Ce diagramme décrit le processus d’ajout d’une activité commerciale. L’utilisateur renseigne le type d’activité, le titre, la description, la date prévue, le statut et l’élément associé. Une activité peut être liée à un contact ou à une opportunité, ce qui permet de conserver un historique clair des interactions commerciales.
+
+\section{Réalisation}
+
+La phase de réalisation du Sprint 3 a permis de développer les interfaces relatives à la gestion des opportunités et des activités. Ces interfaces suivent la même structure visuelle que les modules réalisés dans les sprints précédents.
+
+\subsection{Interface de gestion des opportunités}
+
+L’interface de gestion des opportunités permet à l’utilisateur CRM de consulter et suivre les ventes potentielles de l’entreprise.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-opportunities.png}
+    \caption{Interface de gestion des opportunités}
+    \label{fig:interface_opportunities}
+\end{figure}
+
+Cette page affiche les opportunités sous forme de table. Chaque opportunité contient des informations importantes telles que le nom, le compte associé, le contact, la valeur, l’étape, le propriétaire, la date de clôture et la probabilité de réussite.
+
+Les étapes du pipeline sont représentées par des badges visuels afin de permettre une lecture rapide de l’état d’avancement de chaque vente. Cette représentation aide l’utilisateur à identifier les opportunités les plus avancées et celles qui nécessitent un suivi particulier.
+
+\subsection{Interface de gestion des activités}
+
+L’interface de gestion des activités permet de suivre les actions commerciales effectuées par les utilisateurs CRM.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-activities.png}
+    \caption{Interface de gestion des activités}
+    \label{fig:interface_activities}
+\end{figure}
+
+Cette page affiche les appels, réunions, tâches, e-mails et notes sous forme structurée. Chaque activité possède un type, un titre, une description, une date, un statut et un élément associé. Cette organisation facilite le suivi des interactions et permet de conserver une trace claire des actions réalisées avec les clients.
+
+Le module Activités complète le module Opportunités, car il permet de comprendre le contexte de chaque vente. Une opportunité ne se limite pas à une valeur financière ou à une étape de pipeline ; elle est également liée à une série d’actions commerciales qui expliquent son évolution.
+
+\section{Tests et validation}
+
+Les tests effectués durant ce sprint ont porté sur les interfaces et les comportements attendus des modules Opportunités et Activités. L’objectif était de vérifier que les pages développées répondent aux besoins fonctionnels et restent cohérentes avec le reste de l’application.
+
+Les principaux tests réalisés sont les suivants :
+
+\begin{itemize}
+    \item vérification de l’affichage correct de la liste des opportunités ;
+    \item vérification de l’affichage correct de la liste des activités ;
+    \item vérification du fonctionnement visuel des filtres et de la recherche ;
+    \item vérification de l’affichage des badges d’étape et de statut ;
+    \item vérification de la cohérence des colonnes dans les tables ;
+    \item vérification de la présence des boutons d’action ;
+    \item vérification de la représentation des étapes du pipeline commercial ;
+    \item vérification de la cohérence graphique avec les pages précédentes ;
+    \item vérification de l’adaptation de l’interface aux différentes tailles d’écran.
+\end{itemize}
+
+Dans cette phase, les tests ont porté sur le cycle complet du pipeline : création d’une opportunité, déplacement par glisser-déposer entre les étapes, modification de la probabilité, puis clôture en \textit{Fermé - Gagné} ou \textit{Fermé - Perdu}. La création d’activités liées à un contact et à une opportunité a également été validée de bout en bout.
+
+\section*{Conclusion}
+
+Dans ce chapitre, nous avons présenté les travaux réalisés durant le troisième sprint. Ce sprint a permis d’enrichir notre application CRM avec deux modules essentiels : la gestion des opportunités et la gestion des activités commerciales.
+
+La gestion des opportunités permet de suivre l’évolution des ventes dans le pipeline commercial, depuis les premières étapes de prospection jusqu’à la clôture en succès ou en échec. La gestion des activités permet, quant à elle, de conserver l’historique des interactions et des actions commerciales effectuées par les utilisateurs.
+
+Le Sprint 3 constitue donc une étape importante dans la construction du CRM, car il complète le suivi de la relation client et du cycle de vente. Le chapitre suivant sera consacré à la finalisation du projet, aux tests globaux, aux améliorations de l’interface et à la préparation de l’intégration complète.
+\chapter{Sprint 4 : Reporting, administration et finalisation de l’application}
+
+\section*{Introduction}
+
+Après la mise en place des modules métiers principaux du CRM, notamment la gestion des leads, des comptes, des contacts, des opportunités et des activités commerciales, ce chapitre présente les travaux réalisés durant le quatrième sprint.
+
+Ce sprint représente une étape de finalisation fonctionnelle et visuelle de l’application. Il est consacré principalement au reporting, à l’administration, à la gestion des paramètres et à l’amélioration de l’expérience utilisateur. Ces éléments permettent de compléter les fonctionnalités métiers déjà réalisées et d’offrir à l’utilisateur une vision plus globale sur l’activité commerciale.
+
+Dans une application CRM, les rapports et les indicateurs jouent un rôle important, car ils permettent aux responsables de suivre l’évolution des ventes, d’analyser les performances et de prendre des décisions plus précises. De même, la partie administration permet de mieux contrôler l’accès à l’application, de gérer les utilisateurs et de préparer les options de personnalisation.
+
+Dans ce chapitre, nous présentons le backlog du Sprint 4, l’analyse des cas d’utilisation, la conception des scénarios principaux, puis les interfaces prévues et les tests effectués.
+
+\section{Backlog du Sprint 4}
+
+Le Sprint 4 a pour objectif de compléter l’application par des fonctionnalités de pilotage, d’administration et de finalisation. Il permet également d’améliorer la cohérence générale de l’interface avant la phase finale du projet.
+
+Le tableau \ref{tab:backlog_sprint4} présente les principales tâches réalisées durant ce sprint.
+
+\begin{table}[h]
+\centering
+\caption{Backlog du Sprint 4}
+\label{tab:backlog_sprint4}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Fonctionnalité} & \textbf{Tâches réalisées} \\
+\hline
+
+Reporting et indicateurs
+&
+Concevoir l’interface de consultation des rapports alimentée par des données réelles. \newline
+Afficher trois graphiques à barres : pipeline par étape, leads par statut, activités par type. \newline
+Afficher un tableau récapitulatif du pipeline avec valeur totale, taille moyenne des deals et part en pourcentage par étape. \newline
+Implémenter l’export CSV individuel par graphique et un export global de tous les rapports en un clic. \\
+\hline
+
+Tableau de bord manager (métriques d’équipe)
+&
+Développer une page \textit{Team Metrics} accessible aux managers et administrateurs. \newline
+Afficher les KPIs globaux de l’organisation : nombre de deals actifs, chiffre d’affaires, taux de conversion. \newline
+Afficher la répartition du pipeline par étape et les activités de l’équipe par type sous forme de graphique à barres. \newline
+Afficher le flux d’activités récentes de l’organisation et permettre la clôture rapide d’un deal. \\
+\hline
+
+
+
+Gestion des utilisateurs et des rôles
+&
+Implémenter l’interface de gestion des membres avec liste complète des utilisateurs de l’organisation. \newline
+Permettre l’invitation par e-mail avec sélection du rôle (admin / manager / user). \newline
+Gérer les invitations en attente avec révocation. \newline
+Permettre le changement de rôle et la suppression d’un membre (avec protections : pas d’auto-suppression, pas de suppression du super admin). \\
+\hline
+
+Back-office super administrateur
+&
+Développer une interface de back-office accessible uniquement au super administrateur. \newline
+Afficher la liste de toutes les organisations et de tous les utilisateurs de la plateforme. \newline
+Permettre la consultation des statistiques globales (nombre d’organisations, d’utilisateurs, de leads, de deals). \\
+\hline
+
+Palette de commandes et panneau de détail
+&
+Implémenter une palette de commandes (\texttt{Cmd+K} ou \texttt{/}) avec recherche en temps réel dans les comptes, contacts, opportunités et leads. \newline
+Ouvrir directement le panneau de détail du record sélectionné depuis la palette. \newline
+Le panneau de détail affiche les propriétés, les deals liés (pour contact et compte), l’historique des activités, et les boutons d’action rapide (Email, Appel, Réunion, Note, Supprimer). \\
+\hline
+
+Système de thème et d’ergonomie
+&
+Implémenter un système de thème basé sur les propriétés CSS custom : mode clair/sombre, couleur d’accent (6 options), densité d’affichage et visibilité de la barre latérale. \newline
+Développer un panneau de personnalisation accessible depuis la barre supérieure. \newline
+Persister les préférences de l’utilisateur dans le \texttt{localStorage}. \\
+\hline
+
+Tests globaux et finalisation
+&
+Tester le cycle complet de chaque module de bout en bout. \newline
+Vérifier la cohérence des données entre le tableau de bord, les rapports et les listes. \newline
+Vérifier le fonctionnement des notifications pour chaque événement déclencheur. \newline
+Vérifier le contrôle d’accès RBAC sur tous les modules selon le rôle de l’utilisateur. \newline
+Corriger les erreurs de navigation, d’affichage et de gestion des cas limites. \\
+\hline
+
+\end{tabular}
+}
+\end{table}
+
+\section{Analyse des cas d’utilisation du Sprint 4}
+
+Cette section présente les cas d’utilisation traités durant le quatrième sprint. Ces cas concernent principalement les fonctionnalités de reporting, d’administration et de configuration de l’application.
+
+\subsection{Diagramme de cas d’utilisation du Sprint 4}
+
+Le diagramme de cas d’utilisation du Sprint 4 illustre les interactions principales entre les acteurs et les fonctionnalités de reporting, d’administration et de paramétrage.
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/usecase-sprint4.png}
+    \caption{Diagramme de cas d’utilisation du Sprint 4}
+    \label{fig:usecase_sprint4}
+\end{figure}
+
+Ce diagramme montre que l’utilisateur CRM peut consulter les rapports, tandis que le manager peut analyser les indicateurs commerciaux. L’administrateur dispose de fonctionnalités supplémentaires, notamment la gestion des utilisateurs, des rôles, des métriques de l’organisation et des paramètres de personnalisation.
+
+\subsection{Description textuelle du cas d'utilisation : Consulter les rapports}
+
+Le tableau \ref{tab:cu_consulter_rapports} présente la description textuelle du cas d'utilisation « Consulter les rapports ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Consulter les rapports »}
+\label{tab:cu_consulter_rapports}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Consulter les rapports \\
+\hline
+\textbf{Objectif} & Permettre à l’utilisateur CRM ou au manager de consulter une synthèse de l’activité commerciale. \\
+\hline
+\textbf{Acteur principal} & Utilisateur CRM, Manager \\
+\hline
+\textbf{Préconditions} & L’utilisateur doit être authentifié et avoir accès au module Rapports. \\
+\hline
+\textbf{Postconditions} & Les rapports sont affichés avec les indicateurs principaux liés aux ventes et aux activités. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’utilisateur accède au module Rapports. \newline
+2. Le système affiche une vue synthétique des indicateurs commerciaux. \newline
+3. L’utilisateur consulte les statistiques liées aux leads, opportunités, contrats gagnés et chiffre d’affaires. \newline
+4. L’utilisateur peut filtrer les informations selon une période ou un critère donné. \newline
+5. Le système met à jour l’affichage des résultats. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Aucune donnée ne correspond aux critères sélectionnés. \newline
+2. Le système affiche un message indiquant l’absence de résultats. \newline
+3. L’utilisateur peut modifier les critères de recherche ou réinitialiser les filtres. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d'utilisation : Consulter les métriques de l'organisation}
+
+Le tableau \ref{tab:cu_metriques_organisation} présente la description textuelle du cas d'utilisation « Consulter les métriques de l’organisation ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Consulter les métriques de l’organisation »}
+\label{tab:cu_metriques_organisation}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Consulter les métriques de l’organisation \\
+\hline
+\textbf{Objectif} & Permettre au manager ou à l’administrateur de suivre les données globales de l’organisation. \\
+\hline
+\textbf{Acteur principal} & Manager, Administrateur \\
+\hline
+\textbf{Préconditions} & L’acteur doit être authentifié et disposer des droits nécessaires. \\
+\hline
+\textbf{Postconditions} & Les métriques globales de l’organisation sont affichées. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’acteur accède à l’espace de suivi de l’organisation. \newline
+2. Le système affiche les principales métriques. \newline
+3. L’acteur consulte le nombre d’utilisateurs, de leads, de comptes, de contacts et d’opportunités. \newline
+4. L’acteur analyse les données affichées pour suivre l’évolution de l’activité. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Les données ne sont pas encore disponibles. \newline
+2. Le système affiche des valeurs temporaires ou un message indiquant l’absence d’informations. \newline
+3. L’acteur peut revenir à la page précédente ou modifier les critères de consultation. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d'utilisation : Gérer les utilisateurs et les rôles}
+
+Le tableau \ref{tab:cu_utilisateurs_roles} présente la description textuelle du cas d'utilisation « Gérer les utilisateurs et les rôles ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Gérer les utilisateurs et les rôles »}
+\label{tab:cu_utilisateurs_roles}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Gérer les utilisateurs et les rôles \\
+\hline
+\textbf{Objectif} & Permettre à l’administrateur de gérer les utilisateurs de l’organisation et leurs droits d’accès. \\
+\hline
+\textbf{Acteur principal} & Administrateur \\
+\hline
+\textbf{Préconditions} & L’administrateur doit être authentifié et disposer des droits d’administration. \\
+\hline
+\textbf{Postconditions} & Les utilisateurs et leurs rôles sont consultables et peuvent être gérés. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’administrateur accède au module de gestion des utilisateurs. \newline
+2. Le système affiche la liste des utilisateurs de l’organisation. \newline
+3. L’administrateur peut rechercher un utilisateur. \newline
+4. L’administrateur peut ajouter, modifier ou désactiver un utilisateur. \newline
+5. L’administrateur peut attribuer ou modifier un rôle. \newline
+6. Le système met à jour la liste des utilisateurs. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Les informations saisies sont invalides. \newline
+2. Le système affiche un message d’erreur. \newline
+3. Si l’administrateur annule l’opération, le système conserve l’état précédent. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\subsection{Description textuelle du cas d'utilisation : Personnaliser les paramètres}
+
+Le tableau \ref{tab:cu_personnaliser_parametres} présente la description textuelle du cas d'utilisation « Personnaliser les paramètres ».
+
+\begin{table}[h]
+\centering
+\caption{Description textuelle du cas d’utilisation « Personnaliser les paramètres »}
+\label{tab:cu_personnaliser_parametres}
+\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{4cm}|p{10.5cm}|}
+\hline
+\textbf{Cas d’utilisation} & Personnaliser les paramètres \\
+\hline
+\textbf{Objectif} & Permettre à l’administrateur de configurer certaines préférences de l’organisation et de l’application. \\
+\hline
+\textbf{Acteur principal} & Administrateur \\
+\hline
+\textbf{Préconditions} & L’administrateur doit être authentifié et avoir accès au module Paramètres. \\
+\hline
+\textbf{Postconditions} & Les paramètres sont consultables et peuvent être préparés pour modification. \\
+\hline
+\textbf{Scénario nominal} &
+1. L’administrateur accède au module Paramètres. \newline
+2. Le système affiche les informations de configuration disponibles. \newline
+3. L’administrateur consulte les paramètres généraux de l’organisation. \newline
+4. L’administrateur peut préparer la modification de certains champs ou préférences. \newline
+5. Le système affiche un message de confirmation après validation. \\
+\hline
+\textbf{Scénario alternatif} &
+1. Certaines options ne sont pas encore activées. \newline
+2. Le système affiche uniquement les paramètres disponibles dans la version actuelle. \newline
+3. Les options avancées sont prévues pour une version ultérieure. \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+\section{Conception}
+
+La conception du Sprint 4 permet de représenter les scénarios liés au reporting et à l’administration. Les principaux scénarios étudiés sont la consultation des rapports, la gestion des utilisateurs et la modification des paramètres.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Consulter les rapports »}
+
+La figure \ref{fig:seq_consulter_rapports} présente le diagramme de séquence du cas d’utilisation « Consulter les rapports ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-consulter-rapports.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Consulter les rapports »}
+    \label{fig:seq_consulter_rapports}
+\end{figure}
+
+Ce diagramme décrit le processus de consultation des rapports. L’utilisateur accède au module Rapports, choisit éventuellement des critères de filtrage, puis le système affiche les indicateurs demandés. Ces indicateurs permettent de mieux comprendre l’état général de l’activité commerciale.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Gérer les utilisateurs et les rôles »}
+
+La figure \ref{fig:seq_utilisateurs_roles} présente le diagramme de séquence du cas d’utilisation « Gérer les utilisateurs et les rôles ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-utilisateurs-roles.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Gérer les utilisateurs et les rôles »}
+    \label{fig:seq_utilisateurs_roles}
+\end{figure}
+
+Ce diagramme représente le scénario d’administration des utilisateurs. L’administrateur consulte la liste des utilisateurs, sélectionne un utilisateur, modifie son rôle ou son état, puis le système met à jour les informations. Cette fonctionnalité est importante pour contrôler l’accès aux différents modules du CRM.
+
+\subsection{Diagramme de séquence du cas d’utilisation « Personnaliser les paramètres »}
+
+La figure \ref{fig:seq_personnaliser_parametres} présente le diagramme de séquence du cas d’utilisation « Personnaliser les paramètres ».
+
+\begin{figure}[h]
+    \centering
+    % Remplacer le chemin par le diagramme réel
+    \includegraphics[width=0.9\textwidth]{figures/sequence-personnaliser-parametres.png}
+    \caption{Diagramme de séquence du cas d’utilisation « Personnaliser les paramètres »}
+    \label{fig:seq_personnaliser_parametres}
+\end{figure}
+
+Ce diagramme décrit le processus de consultation et de modification des paramètres. L’administrateur accède à l’espace de configuration, modifie les informations disponibles, puis le système applique les changements après validation.
+
+\section{Réalisation}
+
+La phase de réalisation du Sprint 4 a permis de préparer les interfaces liées au reporting, à l’administration et aux paramètres de l’application. Ces interfaces suivent la même identité visuelle que les modules développés dans les sprints précédents.
+
+\subsection{Interface des rapports}
+
+L’interface des rapports permet de consulter une vue synthétique de l’activité commerciale.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/interface-reports.png}
+    \caption{Interface des rapports}
+    \label{fig:interface_reports}
+\end{figure}
+
+Cette page regroupe les principaux indicateurs utiles au suivi commercial, tels que le nombre de leads, le volume des opportunités, le chiffre d’affaires estimé et les ventes gagnées. Elle permet au manager d’avoir une vision plus claire de la performance commerciale.
+
+\subsection{Interface de gestion des membres}
+
+L’interface de gestion des membres permet à l’administrateur de contrôler les accès à l’organisation. Elle affiche la liste complète des membres avec leur rôle, leur adresse e-mail et leur statut. L’administrateur peut modifier le rôle de chaque membre via un menu déroulant, inviter un nouvel utilisateur par e-mail en choisissant son rôle, révoquer les invitations en attente et supprimer un membre accepté. Des protections sont en place pour empêcher l’auto-suppression et la modification des comptes super administrateur.
+
+\subsection{Interface de la boîte de réception (Notifications)}
+
+La page \textit{Boîte de réception} centralise les notifications in-app de l’utilisateur. Elle est organisée en deux onglets : le premier affiche les notifications (assignation de lead ou d’opportunité, changement d’étape, deal gagné ou perdu) avec indication du nombre non lu et possibilité de marquer chaque notification comme lue ou de tout marquer d’un coup ; le second onglet affiche les tâches urgentes, c’est-à-dire les tâches en retard ou à traiter aujourd’hui.
+
+\subsection{Interface des rapports}
+
+L’interface des rapports permet de consulter une vue analytique complète de l’activité commerciale. Elle est composée de trois graphiques à barres (pipeline par étape, leads par statut, activités par type) et d’un tableau récapitulatif du pipeline détaillant pour chaque étape le nombre de deals, la valeur totale, la taille moyenne et la part en pourcentage. Chaque section dispose d’un bouton d’export CSV individuel, et un bouton global \textit{Exporter tout en CSV} déclenche le téléchargement des trois fichiers simultanément.
+
+\subsection{Interface du système de thème}
+
+Un panneau de personnalisation de l’interface permet à chaque utilisateur d’adapter l’apparence de l’application à ses préférences. Il propose le choix entre le mode clair et le mode sombre, six couleurs d’accent différentes, deux niveaux de densité d’affichage (compact et confortable) et la possibilité de masquer ou afficher la barre latérale. Les préférences sont sauvegardées localement et appliquées immédiatement sans rechargement de la page.
+
+\subsection{Palette de commandes}
+
+La palette de commandes, accessible via le raccourci \texttt{CmdK} ou la touche \texttt{/}, offre un accès rapide à toutes les fonctionnalités de l’application. Lors de la saisie d’une requête d’au moins deux caractères, elle effectue une recherche en temps réel (avec anti-rebond de 250 ms) dans les quatre ressources principales : comptes, contacts, opportunités et leads. Les résultats sont regroupés par type et un clic sur un résultat navigue vers la page correspondante tout en ouvrant le panneau de détail du record sélectionné. En l’absence de recherche, la palette affiche les raccourcis de navigation et de création rapide.
+
+\section{Tests et validation}
+
+Les tests réalisés durant ce sprint ont porté sur la cohérence générale de l’application, la navigation entre les modules et l’affichage des interfaces finales.
+
+Les principaux tests effectués sont les suivants :
+
+\begin{itemize}
+    \item vérification de l’affichage du module Rapports ;
+    \item vérification de l’affichage du module Paramètres ;
+    \item vérification de la navigation entre tous les modules ;
+    \item vérification de la cohérence visuelle entre les pages ;
+    \item vérification de l’affichage des boutons, badges, filtres et cartes statistiques ;
+    \item vérification de l’adaptation de l’interface aux différentes tailles d’écran ;
+    \item vérification de la clarté des messages affichés à l’utilisateur ;
+    \item vérification de la structure globale avant l’intégration complète avec le backend.
+\end{itemize}
+
+Durant ce sprint, les tests ont porté sur l’ensemble de l’application intégrée. Les scénarios validés incluent : le cycle complet de notification (assignation d’un lead à un autre utilisateur, vérification de la réception en boîte de réception), le contrôle d’accès RBAC (vérification que les routes admin sont inaccessibles aux utilisateurs standards), la génération et le téléchargement des exports CSV, ainsi que la cohérence des données entre le tableau de bord, les rapports et les listes.
+
+\section*{Conclusion}
+
+Dans ce chapitre, nous avons présenté les travaux réalisés durant le quatrième sprint. Ce sprint a permis de compléter l’application CRM par des fonctionnalités de reporting, d’administration, de paramétrage et de finalisation visuelle.
+
+Les rapports permettent de suivre l’activité commerciale, tandis que l’administration prépare la gestion des utilisateurs et des rôles. Les paramètres offrent une base pour la personnalisation future de l’application. Enfin, les tests réalisés ont permis de valider la cohérence générale des interfaces et la navigation entre les modules.
+
+Ce sprint constitue donc une étape de consolidation du projet. Il prépare la phase finale du rapport, qui sera consacrée à la conclusion générale, aux limites rencontrées et aux perspectives d’amélioration.
+
+\chapter*{Conclusion générale}
+\addcontentsline{toc}{chapter}{Conclusion générale}
+
+Ce projet de fin d’études a été réalisé dans le cadre de notre stage au sein de l’entreprise KARRIERY. Il avait pour objectif la conception et le développement d’IndigoCRM, une application web CRM cloud multi-tenant complète, inspirée des solutions professionnelles telles que Salesforce. L’objectif était de proposer une plateforme permettant à plusieurs organisations d’isoler et de gérer leurs données commerciales de manière indépendante, sécurisée et personnalisable.
+
+Tout au long de ce travail, nous avons transformé une problématique réelle en une solution applicative fonctionnelle et déployable. De nombreuses entreprises rencontrent des difficultés dans la centralisation de leurs données clients. Notre application y répond en proposant un environnement complet pour gérer le cycle de vente, depuis la capture d’un lead jusqu’à la clôture d’une opportunité, en passant par le suivi des activités et la collaboration entre les membres de l’équipe.
+
+Pour mener à bien ce projet, nous avons adopté la méthodologie Scrum, découpant le travail en quatre sprints progressifs. Cette approche nous a permis de livrer des incréments fonctionnels à chaque sprint, de prioriser les fonctionnalités les plus critiques et d’adapter notre plan en cours de développement.
+
+Sur le plan fonctionnel, l’application livrée couvre l’intégralité des modules d’un CRM professionnel. La gestion des leads inclut la qualification et la conversion automatique en compte, contact et opportunité. La gestion des opportunités intègre un pipeline Kanban interactif avec glisser-déposer persistant. Le module d’activités permet de lier chaque interaction commerciale à la fois à un contact et à une opportunité. Le système de notifications in-app alerte les utilisateurs lors des assignations et des changements d’étape. Des tableaux de bord adaptés au rôle de l’utilisateur (commercial, manager, administrateur) fournissent des indicateurs en temps réel, et une page de rapports permet d’exporter les données en CSV.
+
+Sur le plan technique, la solution repose sur une architecture moderne en trois couches. Le backend est développé en NestJS avec TypeORM et PostgreSQL, en utilisant un modèle de base de données dédiée par organisation (\textit{database-per-tenant}), garantissant une isolation stricte des données. L’authentification est assurée par JWT avec un système RBAC complet (quatre niveaux de rôles : super\_admin, admin, manager, user). Le frontend est développé en React 18 avec Vite, sans dépendance à une bibliothèque de composants externes, s’appuyant sur un design system sur-mesure basé sur les propriétés CSS.
+
+Ce stage nous a permis de renforcer des compétences transversales importantes : conception d’une architecture multi-tenant, implémentation d’un contrôle d’accès par rôles, développement d’interfaces dynamiques complexes et intégration complète frontend-backend. Nous avons également appris à gérer la complexité d’un projet de cette envergure dans un cadre agile.
+
+En conclusion, IndigoCRM constitue une plateforme CRM opérationnelle, sécurisée et évolutive. Elle couvre l’ensemble des exigences fonctionnelles et techniques fixées au début du projet, et offre une base solide pour les améliorations futures décrites dans les perspectives.
+\chapter*{Perspectives}
+\addcontentsline{toc}{chapter}{Perspectives}
+
+Même si l’application réalisée répond aux principaux objectifs fixés au début du projet, plusieurs améliorations peuvent être envisagées afin de renforcer sa valeur fonctionnelle et technique. Ces perspectives permettraient de faire évoluer la plateforme vers une solution CRM plus complète, plus performante et plus proche des besoins réels des entreprises.
+
+\section*{Amélioration de l’intégration backend}
+\addcontentsline{toc}{section}{Amélioration de l’intégration backend}
+
+La première perspective consiste à finaliser l’intégration complète entre le frontend et le backend. Certaines interfaces ont été préparées avec des données statiques afin de valider l’expérience utilisateur et l’organisation visuelle des pages. Dans une version plus avancée, toutes les opérations devront être reliées aux services backend afin de manipuler des données réelles : ajout, modification, suppression, recherche, filtrage et conversion des enregistrements.
+
+\section*{Renforcement du système d’authentification et des rôles}
+\addcontentsline{toc}{section}{Renforcement du système d’authentification et des rôles}
+
+Une autre amélioration importante concerne la gestion des utilisateurs et des permissions. Le système peut être enrichi par une gestion plus fine des rôles, par exemple en distinguant les droits d’un administrateur, d’un manager et d’un utilisateur CRM. Cette évolution permettrait de sécuriser davantage l’accès aux modules et d’adapter les actions disponibles selon le profil de chaque utilisateur.
+
+\section*{Développement des fonctionnalités de personnalisation}
+\addcontentsline{toc}{section}{Développement des fonctionnalités de personnalisation}
+
+Comme l’application est inspirée des CRM professionnels, il serait intéressant d’ajouter des options de personnalisation plus avancées. Par exemple, chaque organisation pourrait définir ses propres champs, ses propres statuts ou ses propres étapes de pipeline. Cette fonctionnalité rendrait la plateforme plus flexible et mieux adaptée aux différents secteurs d’activité.
+
+
+
+\section*{Amélioration du reporting et des tableaux de bord}
+\addcontentsline{toc}{section}{Amélioration du reporting et des tableaux de bord}
+
+Le tableau de bord peut être enrichi par des graphiques dynamiques, des filtres avancés et des statistiques plus détaillées. Il serait également possible d’ajouter des indicateurs comme le taux de conversion, la valeur totale du pipeline, les ventes gagnées par période ou la performance de chaque utilisateur. Ces améliorations aideraient les managers à prendre de meilleures décisions commerciales.
+
+\section*{Notifications et rappels}
+\addcontentsline{toc}{section}{Notifications et rappels}
+
+Une autre perspective consiste à intégrer un système de notifications et de rappels. Les utilisateurs pourraient recevoir des alertes concernant les tâches en retard, les opportunités proches de leur date de clôture, les nouvelles activités ajoutées ou les leads nécessitant un suivi. Cette fonctionnalité améliorerait l’organisation du travail commercial.
+
+\section*{Optimisation de l’expérience utilisateur}
+\addcontentsline{toc}{section}{Optimisation de l’expérience utilisateur}
+
+L’interface peut également être améliorée en tenant compte des retours des utilisateurs. Des optimisations peuvent être apportées au niveau de la navigation, de l’affichage responsive, de la lisibilité des tableaux, de la gestion des formulaires et de l’accessibilité. Une interface plus fluide et plus intuitive rendrait l’application plus agréable à utiliser au quotidien.
+
+\section*{Déploiement et mise en production}
+\addcontentsline{toc}{section}{Déploiement et mise en production}
+
+Enfin, une perspective importante serait le déploiement de l’application dans un environnement de production. Cette étape impliquerait la configuration d’un serveur, la sécurisation des accès, la gestion des variables d’environnement, la sauvegarde des données et la surveillance des performances. Elle permettrait de rendre la solution accessible à de vrais utilisateurs dans un cadre professionnel.
+
+Ces perspectives montrent que le projet peut évoluer vers une plateforme CRM plus complète et plus robuste. Elles ouvrent la voie à de futures améliorations techniques et fonctionnelles, tout en conservant la base déjà développée durant ce stage.
+\chapter*{Netographie}
+\addcontentsline{toc}{chapter}{Netographie}
+
+\begin{enumerate}
+    \item Méthode Agile Scrum \\
+    \texttt{https://www.tuleap.org/fr/agile/comprendre-methode-agile-scrum-10-minutes} \\
+    Consulté le 12 fevrier 2026.
+
+    \item Guide Scrum officiel \\
+    \texttt{https://scrumguides.org/} \\
+    Consulté le 13 fevrier 2026.
+
+    \item UML - Unified Modeling Language \\
+    \texttt{https://www.lucidchart.com/pages/fr/langage-uml} \\
+    Consulté le 18 fevrier 2026.
+
+    \item Visual Studio Code \\
+    \texttt{https://code.visualstudio.com/docs} \\
+    Consulté le 19 fevrier 2026.
+
+    \item GitHub Documentation \\
+    \texttt{https://docs.github.com/} \\
+    Consulté le 21 fevrier 2026.
+
+    \item Postman Documentation \\
+    \texttt{https://learning.postman.com/docs/introduction/overview/} \\
+    Consulté le 22 fevrier 2026.
+
+    \item Draw.io / diagrams.net \\
+    \texttt{https://www.drawio.com/doc/} \\
+    Consulté le 22 fevrier 2026.
+
+    \item React Documentation \\
+    \texttt{https://react.dev/} \\
+    Consulté le 24 fevrier 2026.
+
+    \item Vite Documentation \\
+    \texttt{https://vite.dev/guide/} \\
+    Consulté le 24 fevrier 2026.
+
+    \item TypeScript Documentation \\
+    \texttt{https://www.typescriptlang.org/docs/} \\
+    Consulté le 25 fevrier 2026.
+
+    \item Material UI Documentation \\
+    \texttt{https://mui.com/material-ui/getting-started/} \\
+    Consulté le 26 fevrier 2026.
+
+    \item React Router Documentation \\
+    \texttt{https://reactrouter.com/} \\
+    Consulté le 27 fevrier 2026.
+
+    \item NestJS Documentation \\
+    \texttt{https://docs.nestjs.com/} \\
+    Consulté le 28 fevrier 2026.
+
+    \item TypeORM Documentation \\
+    \texttt{https://typeorm.io/} \\
+    Consulté le 02 mars 2026.
+
+    \item PostgreSQL Documentation \\
+    \texttt{https://www.postgresql.org/docs/} \\
+    Consulté le 08 mars 2026.
+
+    \item JSON Web Token Introduction \\
+    \texttt{https://jwt.io/introduction} \\
+    Consulté le 10 mars 2026.
+
+    \item Salesforce - Qu'est-ce qu'un CRM ? \\
+    \texttt{https://www.salesforce.com/fr/resources/articles/what-is-crm/} \\
+    Consulté le 15 mars 2026.
+\end{enumerate}
+\end{document}
+
+ 

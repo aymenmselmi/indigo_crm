@@ -36,5 +36,9 @@ export class CreateOpportunityDto {
   notes?: string;
 
   @IsOptional()
+  @IsUUID()
+  ownerId?: string;
+
+  @IsOptional()
   customFields?: Record<string, any>;
 }

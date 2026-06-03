@@ -11,6 +11,7 @@ export { TaskComment } from './task-comment.entity';
 export { DynamicEntity } from './dynamic-entity.entity';
 export { DynamicField } from './dynamic-field.entity';
 export { Notification } from './notification.entity';
+export { CustomFieldSchema } from './custom-field-schema.entity';
 
 // Export enums separately (not as part of the entities list)
 export { TaskStatus, TaskPriority } from './task.entity';

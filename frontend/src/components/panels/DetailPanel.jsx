@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Icon } from '../UI/Icon';
 import { fmtMoney, Chip, Avatar } from '../UI/Primitives';
 import { api, unwrap } from '../../services/api';
@@ -51,16 +51,62 @@ function ActivityFeed({ activities, loading }) {
   ));
 }
 
-export const DetailPanel = ({ item, onClose }) => {
+function DealRow({ d }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--line)' }}>
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: STAGE_COLORS[d.stage] || 'var(--ink-4)', flexShrink: 0 }} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 12.5, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
+        <div style={{ fontSize: 11, color: 'var(--ink-4)' }}>{STAGE_LABELS[d.stage] || d.stage}</div>
+      </div>
+      <span className="mono muted" style={{ fontSize: 11, flexShrink: 0 }}>{fmtMoney(Number(d.amount) || 0)}</span>
+    </div>
+  );
+}
+
+const CF_ENTITY_KIND = { account: 'account', contact: 'contact', deal: 'opportunity' };
+
+export const DetailPanel = ({ item, onClose, openQuickAdd, addToast, onDeleted }) => {
   const [relatedDeals, setRelatedDeals] = useState([]);
   const [relatedActs, setRelatedActs]   = useState([]);
   const [loadingDeals, setLoadingDeals] = useState(false);
   const [loadingActs, setLoadingActs]   = useState(false);
+  const [cfSchemas, setCfSchemas]       = useState([]);
+  const [showMore, setShowMore] = useState(false);
+  const moreRef = useRef(null);
+
+  const logActivity = (actType) => {
+    if (!openQuickAdd) return;
+    const { kind, data } = item || {};
+    const prefill = { actType };
+    if (kind === 'deal' && data?._id) prefill.actOpportunity = data._id;
+    if (kind === 'contact' && data?._id) prefill.actContact = data._id;
+    openQuickAdd('activity', prefill);
+  };
+
+  // Close more menu on outside click
+  useEffect(() => {
+    if (!showMore) return;
+    const handler = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) setShowMore(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMore]);
+
+  useEffect(() => {
+    const entityType = item ? CF_ENTITY_KIND[item.kind] : null;
+    if (!entityType) { setCfSchemas([]); return; }
+    api.getCustomFieldSchemas(entityType)
+      .then(res => setCfSchemas(Array.isArray(res) ? res : []))
+      .catch(() => setCfSchemas([]));
+  }, [item?.kind]);
 
   useEffect(() => {
     if (!item) return;
     setRelatedDeals([]);
     setRelatedActs([]);
+    setShowMore(false);
     const { kind, data } = item;
 
     if (kind === 'account' && data._id) {
@@ -84,7 +130,41 @@ export const DetailPanel = ({ item, onClose }) => {
         .catch(() => setRelatedActs([]))
         .finally(() => setLoadingActs(false));
     }
+
+    if (kind === 'contact' && data._id) {
+      setLoadingActs(true);
+      const fetches = [api.getContactActivities(data._id)];
+      if (data._accountId) {
+        setLoadingDeals(true);
+        fetches.push(api.getAccountOpportunities(data._accountId));
+      }
+      Promise.all(fetches)
+        .then(([actsRes, oppsRes]) => {
+          setRelatedActs(unwrap(actsRes));
+          if (oppsRes) setRelatedDeals(unwrap(oppsRes).filter(o => o.stage !== 'closed-won' && o.stage !== 'closed-lost'));
+        })
+        .catch(() => {})
+        .finally(() => { setLoadingActs(false); setLoadingDeals(false); });
+    }
   }, [item]);
+
+  const handleDelete = async () => {
+    if (!item) return;
+    const { kind, data } = item;
+    const label = data.name || data.title || 'this record';
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+    setShowMore(false);
+    try {
+      if (kind === 'account') await api.deleteAccount(data._id);
+      else if (kind === 'contact') await api.deleteContact(data._id);
+      else if (kind === 'deal') await api.deleteOpportunity(data._id);
+      else if (kind === 'task') await api.deleteTask(data._id);
+      addToast?.(`${label} deleted`);
+      onDeleted?.();
+    } catch {
+      addToast?.('Failed to delete');
+    }
+  };
 
   if (!item) return null;
   const { kind, data } = item;
@@ -123,16 +203,7 @@ export const DetailPanel = ({ item, onClose }) => {
             <div style={{ padding: '12px 0', color: 'var(--ink-4)', fontSize: 12 }}>Loading…</div>
           ) : relatedDeals.length === 0 ? (
             <div className="empty" style={{ padding: 16 }}>No open deals</div>
-          ) : relatedDeals.map(d => (
-            <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0', borderBottom: '1px solid var(--line)' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: STAGE_COLORS[d.stage] || 'var(--ink-4)', flexShrink: 0 }} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--ink-4)' }}>{STAGE_LABELS[d.stage] || d.stage}</div>
-              </div>
-              <span className="mono muted" style={{ fontSize: 11, flexShrink: 0 }}>{fmtMoney(Number(d.amount) || 0)}</span>
-            </div>
-          ))}
+          ) : relatedDeals.map(d => <DealRow key={d.id} d={d} />)}
         </div>
         <div className="detail-section">
           <div className="detail-label">Recent activity</div>
@@ -220,6 +291,24 @@ export const DetailPanel = ({ item, onClose }) => {
       ['Department', c.department || '—'],
       ['Account',    c.account || '—'],
     ];
+    related = (
+      <>
+        {c._accountId && (
+          <div className="detail-section">
+            <div className="detail-label">Related deals</div>
+            {loadingDeals ? (
+              <div style={{ padding: '12px 0', color: 'var(--ink-4)', fontSize: 12 }}>Loading…</div>
+            ) : relatedDeals.length === 0 ? (
+              <div className="empty" style={{ padding: 16 }}>No open deals</div>
+            ) : relatedDeals.map(d => <DealRow key={d.id} d={d} />)}
+          </div>
+        )}
+        <div className="detail-section">
+          <div className="detail-label">Recent activity</div>
+          <ActivityFeed activities={relatedActs} loading={loadingActs} />
+        </div>
+      </>
+    );
 
   } else {
     head   = <div style={{ fontSize: 15, fontWeight: 600 }}>Detail</div>;
@@ -237,11 +326,25 @@ export const DetailPanel = ({ item, onClose }) => {
         <div className="detail-body">
           <div className="detail-section">
             <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
-              <button className="btn sm"><Icon name="mail" size={12} />Email</button>
-              <button className="btn sm"><Icon name="phone" size={12} />Call</button>
-              <button className="btn sm"><Icon name="cal" size={12} />Meet</button>
-              <button className="btn sm"><Icon name="note" size={12} />Note</button>
-              <button className="btn ghost icon sm" style={{ marginLeft: 'auto' }}><Icon name="more" size={13} /></button>
+              <button className="btn sm" onClick={() => logActivity('email')}><Icon name="mail" size={12} />Email</button>
+              <button className="btn sm" onClick={() => logActivity('call')}><Icon name="phone" size={12} />Call</button>
+              <button className="btn sm" onClick={() => logActivity('meeting')}><Icon name="cal" size={12} />Meet</button>
+              <button className="btn sm" onClick={() => logActivity('note')}><Icon name="note" size={12} />Note</button>
+              <div style={{ marginLeft: 'auto', position: 'relative' }} ref={moreRef}>
+                <button className="btn ghost icon sm" onClick={() => setShowMore(m => !m)}><Icon name="more" size={13} /></button>
+                {showMore && (
+                  <div style={{ position: 'absolute', right: 0, top: '100%', marginTop: 4, zIndex: 20, background: 'var(--bg)', border: '1px solid var(--line)', borderRadius: 6, boxShadow: 'var(--shadow-lg, 0 4px 16px rgba(0,0,0,.12))', minWidth: 140, padding: '4px 0' }}>
+                    <button
+                      style={{ display: 'block', width: '100%', textAlign: 'left', padding: '7px 14px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12.5, color: 'var(--danger)', fontFamily: 'var(--font)' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-sunken)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      onClick={handleDelete}
+                    >
+                      Delete…
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="detail-label">Properties</div>
             <div style={{ marginTop: 6 }}>
@@ -252,6 +355,28 @@ export const DetailPanel = ({ item, onClose }) => {
                 </div>
               ))}
             </div>
+            {cfSchemas.length > 0 && (() => {
+              const cf = data.customFields || {};
+              const populated = cfSchemas.filter(s => cf[s.name] !== undefined && cf[s.name] !== null && cf[s.name] !== '');
+              if (!populated.length) return null;
+              return (
+                <div style={{ marginTop: 12 }}>
+                  <div className="detail-label">Custom fields</div>
+                  <div style={{ marginTop: 6 }}>
+                    {populated.map(s => {
+                      let val = cf[s.name];
+                      if (s.fieldType === 'boolean') val = val ? 'Yes' : 'No';
+                      return (
+                        <div className="field-row" key={s.id}>
+                          <div className="field-key">{s.label}</div>
+                          <div className="field-value">{String(val)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
           {related}
         </div>

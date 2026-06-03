@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Icon } from '../components/UI/Icon';
 import { fmtMoney, Chip, Spark, Avatar } from '../components/UI/Primitives';
-import { STAGES } from '../data/seed';
+import { STAGES } from '../utils/stages';
 import { api, unwrap } from '../services/api';
 import { normalizeOpportunity, normalizeActivity, normalizeTask } from '../utils/normalize';
 
-export const Dashboard = ({ openDetail, addToast, openQuickAdd, user, refreshKey = 0 }) => {
+export const Dashboard = ({ openDetail, addToast, openQuickAdd, user, refreshKey = 0, setView }) => {
   const [deals, setDeals] = useState([]);
   const [activity, setActivity] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -89,7 +89,7 @@ export const Dashboard = ({ openDetail, addToast, openQuickAdd, user, refreshKey
         <div className="actions">
           <button className="btn sm"><Icon name="cal" size={13} />Last 30 days<Icon name="chevron-down" size={12} /></button>
           <button className="btn sm"><Icon name="ai" size={13} />Ask Indigo AI</button>
-          <button className="btn primary sm"><Icon name="plus" size={13} />New deal</button>
+          <button className="btn primary sm" onClick={() => openQuickAdd && openQuickAdd('deal')}><Icon name="plus" size={13} />New deal</button>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export const Dashboard = ({ openDetail, addToast, openQuickAdd, user, refreshKey
             {openDeals.length} open · weighted {fmtMoney(openDeals.reduce((s, d) => s + d.amount * d.prob / 100, 0), { compact: true })}
           </span>
           <div className="actions">
-            <button className="btn ghost sm">View board <Icon name="arrow-right" size={11} /></button>
+            <button className="btn ghost sm" onClick={() => setView && setView('pipeline')}>View board <Icon name="arrow-right" size={11} /></button>
           </div>
         </div>
         <div className="pipeline-strip" style={{ borderRadius: 0, border: 0, marginBottom: 0 }}>
@@ -364,14 +364,16 @@ export const Dashboard = ({ openDetail, addToast, openQuickAdd, user, refreshKey
               text: openDeals.length > 0
                 ? <><strong>{openDeals[0].company}</strong> has an open deal worth <strong>{fmtMoney(openDeals[0].amount)}</strong> in {openDeals[0].stage} stage.</>
                 : <>No at-risk deals detected.</>,
-              action: 'Draft email',
+              action: 'Log activity',
+              onClick: () => openQuickAdd && openQuickAdd('activity'),
             },
             {
               tone: 'accent', label: 'Opportunity',
               text: openDeals.length > 1
                 ? <><strong>{openDeals[1].name}</strong> — {fmtMoney(openDeals[1].amount)} at {openDeals[1].prob}% probability. High intent signal.</>
                 : <>Check pipeline for upsell opportunities.</>,
-              action: 'Schedule call',
+              action: 'New task',
+              onClick: () => openQuickAdd && openQuickAdd('task'),
             },
             {
               tone: 'warn', label: 'Pipeline',
@@ -379,13 +381,14 @@ export const Dashboard = ({ openDetail, addToast, openQuickAdd, user, refreshKey
                 ? <>{closedDeals.length} deal{closedDeals.length > 1 ? 's' : ''} closed worth <strong>{fmtMoney(wonTotal)}</strong>. Track next milestones.</>
                 : <>{openDeals.length} open deals worth <strong>{fmtMoney(totalPipe)}</strong> need attention.</>,
               action: 'View pipeline',
+              onClick: () => setView && setView('pipeline'),
             },
           ].map((n, i) => (
             <div key={i} style={{ background: 'var(--bg-elev)', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
               <Chip tone={n.tone}>{n.label}</Chip>
               <div style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--ink)', flex: 1 }}>{n.text}</div>
               <div>
-                <button className="btn sm" onClick={() => addToast(`Action: ${n.action}`)}>
+                <button className="btn sm" onClick={n.onClick}>
                   <Icon name="sparkle" size={12} />{n.action}
                 </button>
               </div>

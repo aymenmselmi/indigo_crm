@@ -3,6 +3,7 @@ import { Icon } from '../components/UI/Icon';
 import { Avatar, Chip } from '../components/UI/Primitives';
 import { api, unwrap } from '../services/api';
 import { normalizeContact } from '../utils/normalize';
+import { useCustomFields, CustomFieldInputs } from '../components/shared/CustomFieldInputs';
 
 const inp = {
   height: 32, padding: '0 10px', border: '1px solid var(--line)', borderRadius: 7,
@@ -25,10 +26,10 @@ const Field = ({ label, children }) => (
 
 const EMPTY = {
   firstName: '', lastName: '', email: '', phone: '', mobilePhone: '',
-  title: '', department: '', address: '', status: 'active', accountId: '',
+  title: '', department: '', address: '', status: 'active', accountId: '', ownerId: '',
 };
 
-function ContactModal({ contact, accounts, onSave, onClose }) {
+function ContactModal({ contact, accounts, members, onSave, onClose }) {
   const editing = !!contact;
   const [form, setForm]     = useState(contact ? {
     firstName:   contact.firstName   || '',
@@ -41,9 +42,11 @@ function ContactModal({ contact, accounts, onSave, onClose }) {
     address:     contact.address     || '',
     status:      contact.status      || 'active',
     accountId:   contact._accountId  || '',
+    ownerId:     contact.ownerId     || '',
   } : { ...EMPTY });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
+  const { schemas: cfSchemas, cfValues, setCfValue, customFieldsPayload } = useCustomFields('contact', contact?.customFields);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -65,6 +68,8 @@ function ContactModal({ contact, accounts, onSave, onClose }) {
         department:  form.department  || undefined,
         address:     form.address     || undefined,
         status:      form.status,
+        ownerId:     form.ownerId     || undefined,
+        customFields: customFieldsPayload,
       };
       if (editing) await api.updateContact(contact._id, payload);
       else         await api.createContact(payload);
@@ -126,6 +131,18 @@ function ContactModal({ contact, accounts, onSave, onClose }) {
               <input style={inp} value={form.mobilePhone} onChange={e => set('mobilePhone', e.target.value)} placeholder="+1 555 000 0001" onFocus={focus} onBlur={blur} />
             </Field>
           </Row>
+          <Field label="Owner">
+            <select style={inp} value={form.ownerId} onChange={e => set('ownerId', e.target.value)}>
+              <option value="">Assign to me (default)</option>
+              {(members || []).map(m => (
+                <option key={m.id} value={m.id}>
+                  {[m.firstName, m.lastName].filter(Boolean).join(' ') || m.email}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <CustomFieldInputs schemas={cfSchemas} values={cfValues} onChange={setCfValue} inp={inp} />
 
           {error && (
             <div style={{ fontSize: 12, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -150,18 +167,19 @@ const STATUS_CHIP = {
   prospect: <Chip tone="accent">Prospect</Chip>,
 };
 
-export const ContactsView = ({ openDetail, addToast }) => {
+export const ContactsView = ({ openDetail, addToast, membersById = {} }) => {
   const [contacts, setContacts] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [search, setSearch]     = useState('');
   const [filter, setFilter]     = useState('all');
+  const [mine, setMine]         = useState(false);
   const [modal, setModal]       = useState(null);
 
-  const load = () => {
+  const load = (mineFilter = mine) => {
     setLoading(true);
     Promise.allSettled([
-      api.getContacts(200),
+      api.getContacts(200, mineFilter),
       api.getAccounts(200),
     ]).then(([cRes, aRes]) => {
       if (cRes.status === 'fulfilled') setContacts(unwrap(cRes.value).map(normalizeContact));
@@ -170,6 +188,12 @@ export const ContactsView = ({ openDetail, addToast }) => {
   };
 
   useEffect(() => { load(); }, []);
+
+  const toggleMine = () => {
+    const next = !mine;
+    setMine(next);
+    load(next);
+  };
 
   const handleSave = () => {
     setModal(null);
@@ -207,6 +231,9 @@ export const ContactsView = ({ openDetail, addToast }) => {
         <button className={`filter-pill ${filter === 'inactive' ? 'active' : ''}`} onClick={() => setFilter('inactive')}>
           Inactive <span className="mono muted">{contacts.filter(c => c.status === 'inactive').length}</span>
         </button>
+        <button className={`filter-pill ${mine ? 'active' : ''}`} onClick={toggleMine}>
+          My contacts
+        </button>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <Icon name="search" size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }} />
@@ -230,7 +257,7 @@ export const ContactsView = ({ openDetail, addToast }) => {
             <thead>
               <tr>
                 <th>Contact</th><th>Title</th><th>Account</th>
-                <th>Email</th><th>Status</th><th>Last contact</th>
+                <th>Email</th><th>Status</th><th>Owner</th><th>Last contact</th>
                 <th style={{ width: 80 }}></th>
               </tr>
             </thead>
@@ -250,6 +277,7 @@ export const ContactsView = ({ openDetail, addToast }) => {
                   <td>{c.account || '—'}</td>
                   <td className="mono" style={{ fontSize: 11.5 }}>{c.email || '—'}</td>
                   <td>{STATUS_CHIP[c.status] || <Chip>{c.status}</Chip>}</td>
+                  <td><Avatar ownerId={c.ownerId} membersById={membersById} size="sm" /></td>
                   <td className="mono muted" style={{ fontSize: 11 }}>{c.last}</td>
                   <td onClick={e => e.stopPropagation()}>
                     <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
@@ -267,7 +295,7 @@ export const ContactsView = ({ openDetail, addToast }) => {
               ))}
               {rows.length === 0 && !loading && (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', color: 'var(--ink-4)', padding: 32, fontSize: 12 }}>
+                  <td colSpan={8} style={{ textAlign: 'center', color: 'var(--ink-4)', padding: 32, fontSize: 12 }}>
                     {search ? 'No contacts match your search.' : (
                       <div>No contacts yet.{' '}
                         <button className="btn primary sm" style={{ marginLeft: 8 }} onClick={() => setModal('create')}>
@@ -287,6 +315,7 @@ export const ContactsView = ({ openDetail, addToast }) => {
         <ContactModal
           contact={modal === 'create' ? null : modal}
           accounts={accounts}
+          members={Object.values(membersById)}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

@@ -1,18 +1,60 @@
 import { useState, useEffect } from 'react';
 import { Icon } from '../UI/Icon';
-import { STAGES } from '../../data/seed';
+import { STAGES } from '../../utils/stages';
 import { api, unwrap } from '../../services/api';
 
 const INDUSTRIES = ['SaaS', 'Finance', 'Healthcare', 'Logistics', 'Biotech', 'Energy', 'Retail', 'Manufacturing', 'Media', 'Other'];
 const BE_STAGE = { lead: 'prospecting', qualify: 'qualification', propose: 'proposal', negotiate: 'negotiation', close: 'closed-won' };
 
-export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
-  const [type, setType] = useState(initialType || 'deal');
+const CF_ENTITY = { deal: 'opportunity', account: 'account', contact: 'contact' };
+
+function CustomFieldInputs({ schemas, values, onChange }) {
+  if (!schemas.length) return null;
+  return (
+    <>
+      <div style={{ borderTop: '1px solid var(--line)', marginTop: 4, paddingTop: 10 }}>
+        <div style={{ fontSize: 10.5, color: 'var(--ink-4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Custom fields</div>
+        {schemas.map(s => (
+          <label key={s.id} style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 8 }}>
+            <span style={{ fontSize: 11.5 }}>{s.label}{s.required && <span style={{ color: 'var(--danger)' }}> *</span>}</span>
+            {s.fieldType === 'text' && (
+              <input value={values[s.name] || ''} onChange={e => onChange(s.name, e.target.value)} placeholder={s.label} />
+            )}
+            {s.fieldType === 'number' && (
+              <input type="number" value={values[s.name] || ''} onChange={e => onChange(s.name, e.target.value)} placeholder="0" />
+            )}
+            {s.fieldType === 'date' && (
+              <input type="date" value={values[s.name] || ''} onChange={e => onChange(s.name, e.target.value)} />
+            )}
+            {s.fieldType === 'boolean' && (
+              <label style={{ flexDirection: 'row', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                <input type="checkbox" checked={!!values[s.name]} onChange={e => onChange(s.name, e.target.checked)} />
+                {s.label}
+              </label>
+            )}
+            {s.fieldType === 'dropdown' && (
+              <select value={values[s.name] || ''} onChange={e => onChange(s.name, e.target.value)}>
+                <option value="">— select —</option>
+                {(s.options || []).map(opt => <option key={opt} value={opt}>{opt}</option>)}
+              </select>
+            )}
+          </label>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export const QuickAdd = ({ onClose, onSaved, addToast, initialType, initialPrefill = {} }) => {
+  const hasPrefill = initialPrefill && Object.keys(initialPrefill).length > 0;
+  const [type, setType] = useState(initialType || (hasPrefill ? 'activity' : 'deal'));
   const [accounts, setAccounts]         = useState([]);
   const [contacts, setContacts]         = useState([]);
   const [opportunities, setOpportunities] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [cfSchemas, setCfSchemas]   = useState([]);
+  const [cfValues, setCfValues]     = useState({});
 
   // Deal fields
   const [dealName, setDealName]       = useState('');
@@ -40,10 +82,10 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
   const [taskDue, setTaskDue]         = useState('');
 
   // Activity fields
-  const [actType, setActType]           = useState('call');
+  const [actType, setActType]           = useState(initialPrefill.actType || 'call');
   const [actSubject, setActSubject]     = useState('');
-  const [actContact, setActContact]     = useState('');
-  const [actOpportunity, setActOpportunity] = useState('');
+  const [actContact, setActContact]     = useState(initialPrefill.actContact || '');
+  const [actOpportunity, setActOpportunity] = useState(initialPrefill.actOpportunity || '');
 
   useEffect(() => {
     api.getAccounts(100).then(res => setAccounts(unwrap(res))).catch(() => {});
@@ -51,10 +93,22 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
     api.getOpportunities(200).then(res => setOpportunities(unwrap(res))).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    const entityType = CF_ENTITY[type];
+    if (!entityType) { setCfSchemas([]); setCfValues({}); return; }
+    api.getCustomFieldSchemas(entityType)
+      .then(res => { setCfSchemas(Array.isArray(res) ? res : []); setCfValues({}); })
+      .catch(() => setCfSchemas([]));
+  }, [type]);
+
+  const setCfValue = (name, value) => setCfValues(v => ({ ...v, [name]: value }));
+
   const submit = async () => {
     setError('');
     setSaving(true);
     try {
+      const cf = Object.keys(cfValues).length ? cfValues : undefined;
+
       if (type === 'deal') {
         if (!dealName.trim()) throw new Error('Name is required');
         const payload = {
@@ -63,6 +117,7 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
           amount: dealAmount ? Number(dealAmount) : undefined,
           expectedCloseDate: dealClose || undefined,
           accountId: dealAccount || undefined,
+          customFields: cf,
         };
         await api.createOpportunity(payload);
         addToast(`Deal "${dealName}" created`);
@@ -74,6 +129,7 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
           industry: accIndustry || undefined,
           type: accType,
           website: accWebsite || undefined,
+          customFields: cf,
         };
         await api.createAccount(payload);
         addToast(`Account "${accName}" created`);
@@ -88,6 +144,7 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
           email: conEmail || undefined,
           title: conTitle || undefined,
           accountId: conAccount,
+          customFields: cf,
         };
         await api.createContact(payload);
         addToast(`Contact "${conFirst} ${conLast}" created`);
@@ -166,6 +223,7 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
                   <input type="date" value={dealClose} onChange={e => setDealClose(e.target.value)} />
                 </label>
               </div>
+              <CustomFieldInputs schemas={cfSchemas} values={cfValues} onChange={setCfValue} />
             </>}
 
             {type === 'account' && <>
@@ -190,6 +248,7 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
               <label>Website
                 <input value={accWebsite} onChange={e => setAccWebsite(e.target.value)} placeholder="example.com" />
               </label>
+              <CustomFieldInputs schemas={cfSchemas} values={cfValues} onChange={setCfValue} />
             </>}
 
             {type === 'contact' && <>
@@ -215,6 +274,7 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
                   </select>
                 </label>
               </div>
+              <CustomFieldInputs schemas={cfSchemas} values={cfValues} onChange={setCfValue} />
             </>}
 
             {type === 'task' && <>
@@ -290,19 +350,3 @@ export const QuickAdd = ({ onClose, onSaved, addToast, initialType }) => {
     </div>
   );
 };
-
-export const SimpleView = ({ title, sub, hint }) => (
-  <div className="page-inner">
-    <div className="page-head">
-      <div>
-        <div className="page-title">{title}</div>
-        <div className="page-sub">{sub}</div>
-      </div>
-    </div>
-    <div className="card">
-      <div className="card-body">
-        <div className="empty" style={{ padding: 60 }}>{hint}</div>
-      </div>
-    </div>
-  </div>
-);

@@ -31,22 +31,24 @@ export class ContactService {
     return dataSource.getRepository(Contact);
   }
 
-  async findAll(limit: number = 20, offset: number = 0) {
+  async findAll(limit: number = 20, offset: number = 0, ownerId?: string) {
     const orgId = this.getOrganizationId();
     const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
     const repo = await this.getRepository(dataSource);
-    
+
     limit = Math.min(Math.max(limit, 1), 100);
     offset = Math.max(offset, 0);
 
-    const [contacts, total] = await repo
+    let qb = repo
       .createQueryBuilder('contact')
       .leftJoinAndSelect('contact.account', 'account')
       .orderBy('contact.createdAt', 'DESC')
       .skip(offset)
-      .take(limit)
-      .getManyAndCount();
+      .take(limit);
 
+    if (ownerId) qb = qb.where('contact.ownerId = :ownerId', { ownerId });
+
+    const [contacts, total] = await qb.getManyAndCount();
     return { data: contacts, total, limit, offset, hasMore: offset + limit < total };
   }
 
@@ -63,7 +65,7 @@ export class ContactService {
     return contact;
   }
 
-  async create(data: Partial<Contact>) {
+  async create(data: Partial<Contact>, userId?: string) {
     try {
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
@@ -72,6 +74,7 @@ export class ContactService {
       const contact = repo.create({
         ...data,
         tenantId: orgId,
+        ownerId: data.ownerId ?? userId,
       });
       
       this.logger.debug(`Creating contact: ${JSON.stringify(contact)}`);

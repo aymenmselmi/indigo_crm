@@ -4,6 +4,7 @@ import { TenantContextService } from '@/tenant/services/tenant-context.service';
 import { DatabaseSwitcherService } from '@/tenant/services/database-switcher.service';
 import { Opportunity } from '@/database/entities/tenant/opportunity.entity';
 import { Activity } from '@/database/entities/tenant/activity.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 /**
  * Opportunity Service - Multi-tenant aware
@@ -16,6 +17,7 @@ export class OpportunityService {
   constructor(
     private databaseSwitcher: DatabaseSwitcherService,
     private tenantContext: TenantContextService,
+    private notifications: NotificationsService,
   ) {}
 
   private getOrganizationId(): string {
@@ -30,22 +32,24 @@ export class OpportunityService {
     return dataSource.getRepository(Opportunity);
   }
 
-  async findAll(limit: number = 20, offset: number = 0) {
+  async findAll(limit: number = 20, offset: number = 0, ownerId?: string) {
     const orgId = this.getOrganizationId();
     const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
     const repo = await this.getRepository(dataSource);
-    
+
     limit = Math.min(Math.max(limit, 1), 100);
     offset = Math.max(offset, 0);
 
-    const [opportunities, total] = await repo
+    let qb = repo
       .createQueryBuilder('opportunity')
       .leftJoinAndSelect('opportunity.account', 'account')
       .orderBy('opportunity.createdAt', 'DESC')
       .skip(offset)
-      .take(limit)
-      .getManyAndCount();
+      .take(limit);
 
+    if (ownerId) qb = qb.where('opportunity.ownerId = :ownerId', { ownerId });
+
+    const [opportunities, total] = await qb.getManyAndCount();
     return { data: opportunities, total, limit, offset, hasMore: offset + limit < total };
   }
 
@@ -62,7 +66,7 @@ export class OpportunityService {
     return opportunity;
   }
 
-  async create(data: Partial<Opportunity>) {
+  async create(data: Partial<Opportunity>, userId?: string) {
     try {
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
@@ -71,11 +75,25 @@ export class OpportunityService {
       const opportunity = repo.create({
         ...data,
         tenantId: orgId,
+        ownerId: data.ownerId ?? userId,
       });
       
       this.logger.debug(`Creating opportunity: ${JSON.stringify(opportunity)}`);
       const saved = await repo.save(opportunity);
       this.logger.debug(`Opportunity created successfully: ${saved.id}`);
+
+      // Notify owner when assigned by someone else
+      if (saved.ownerId && saved.ownerId !== userId) {
+        this.notifications.create({
+          userId: saved.ownerId,
+          type: 'deal_assigned',
+          title: 'Deal assigned to you',
+          body: saved.name,
+          entityType: 'opportunity',
+          entityId: saved.id,
+        }).catch(() => {});
+      }
+
       return saved;
     } catch (error) {
       this.logger.error(`Error creating opportunity: ${error.message}`, error.stack);
@@ -83,17 +101,48 @@ export class OpportunityService {
     }
   }
 
-  async update(id: string, data: Partial<Opportunity>) {
+  async update(id: string, data: Partial<Opportunity>, actorId?: string) {
     try {
       const existing = await this.findById(id);
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
       const repo = await this.getRepository(dataSource);
 
+      const prevStage = existing.stage;
+      const prevOwner = existing.ownerId;
+
       const updated = Object.assign(existing, data);
       this.logger.debug(`Updating opportunity ${id}: ${JSON.stringify(updated)}`);
       const saved = await repo.save(updated);
       this.logger.debug(`Opportunity updated successfully: ${saved.id}`);
+
+      // Stage changed — notify owner (if someone else moved it)
+      if (data.stage && data.stage !== prevStage && saved.ownerId && saved.ownerId !== actorId) {
+        const isTerminal = data.stage === 'closed-won' || data.stage === 'closed-lost';
+        this.notifications.create({
+          userId: saved.ownerId,
+          type: isTerminal ? (data.stage === 'closed-won' ? 'deal_won' : 'deal_lost') : 'deal_stage_changed',
+          title: isTerminal
+            ? (data.stage === 'closed-won' ? `Deal won: ${saved.name}` : `Deal lost: ${saved.name}`)
+            : `Deal moved to ${data.stage}`,
+          body: saved.name,
+          entityType: 'opportunity',
+          entityId: saved.id,
+        }).catch(() => {});
+      }
+
+      // Owner changed — notify new owner
+      if (data.ownerId && data.ownerId !== prevOwner && data.ownerId !== actorId) {
+        this.notifications.create({
+          userId: data.ownerId,
+          type: 'deal_assigned',
+          title: 'Deal assigned to you',
+          body: saved.name,
+          entityType: 'opportunity',
+          entityId: saved.id,
+        }).catch(() => {});
+      }
+
       return saved;
     } catch (error) {
       this.logger.error(`Error updating opportunity: ${error.message}`, error.stack);

@@ -3,6 +3,7 @@ import { Icon } from '../components/UI/Icon';
 import { Chip, Avatar } from '../components/UI/Primitives';
 import { api, unwrap } from '../services/api';
 import { normalizeAccount } from '../utils/normalize';
+import { useCustomFields, CustomFieldInputs } from '../components/shared/CustomFieldInputs';
 
 const inp = {
   height: 32, padding: '0 10px', border: '1px solid var(--line)', borderRadius: 7,
@@ -25,12 +26,12 @@ const Field = ({ label, children }) => (
 
 const EMPTY = {
   name: '', type: 'prospect', industry: '', website: '',
-  phone: '', email: '', employees: '', annualRevenue: '', description: '',
+  phone: '', email: '', employees: '', annualRevenue: '', description: '', ownerId: '',
 };
 
 const INDUSTRIES = ['SaaS', 'Finance', 'Healthcare', 'Logistics', 'Biotech', 'Energy', 'Retail', 'Manufacturing', 'Media', 'Other'];
 
-function AccountModal({ account, onSave, onClose }) {
+function AccountModal({ account, members, onSave, onClose }) {
   const editing = !!account;
   const [form, setForm]     = useState(account ? {
     name:          account.name,
@@ -42,9 +43,11 @@ function AccountModal({ account, onSave, onClose }) {
     employees:     '',
     annualRevenue: account.mrr ? String(account.mrr * 12) : '',
     description:   '',
+    ownerId:       account.ownerId || '',
   } : { ...EMPTY });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
+  const { schemas: cfSchemas, cfValues, setCfValue, customFieldsPayload } = useCustomFields('account', account?.customFields);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -63,6 +66,8 @@ function AccountModal({ account, onSave, onClose }) {
         description:   form.description   || undefined,
         employees:     form.employees     ? Number(form.employees)     : undefined,
         annualRevenue: form.annualRevenue ? Number(form.annualRevenue) : undefined,
+        ownerId:       form.ownerId       || undefined,
+        customFields:  customFieldsPayload,
       };
       if (editing) await api.updateAccount(account._id, payload);
       else         await api.createAccount(payload);
@@ -117,6 +122,16 @@ function AccountModal({ account, onSave, onClose }) {
               <input style={inp} type="number" min="0" value={form.annualRevenue} onChange={e => set('annualRevenue', e.target.value)} placeholder="1000000" onFocus={focus} onBlur={blur} />
             </Field>
           </Row>
+          <Field label="Owner">
+            <select style={inp} value={form.ownerId} onChange={e => set('ownerId', e.target.value)}>
+              <option value="">Assign to me (default)</option>
+              {(members || []).map(m => (
+                <option key={m.id} value={m.id}>
+                  {[m.firstName, m.lastName].filter(Boolean).join(' ') || m.email}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label="Description">
             <textarea
               value={form.description} onChange={e => set('description', e.target.value)}
@@ -125,6 +140,8 @@ function AccountModal({ account, onSave, onClose }) {
               onFocus={focus} onBlur={blur}
             />
           </Field>
+
+          <CustomFieldInputs schemas={cfSchemas} values={cfValues} onChange={setCfValue} inp={inp} />
 
           {error && (
             <div style={{ fontSize: 12, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -143,23 +160,30 @@ function AccountModal({ account, onSave, onClose }) {
   );
 }
 
-export const AccountsView = ({ openDetail, addToast }) => {
+export const AccountsView = ({ openDetail, addToast, membersById = {} }) => {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [selected, setSelected] = useState(new Set());
   const [search, setSearch]     = useState('');
   const [filter, setFilter]     = useState('all');
+  const [mine, setMine]         = useState(false);
   const [modal, setModal]       = useState(null);
 
-  const load = () => {
+  const load = (mineFilter = mine) => {
     setLoading(true);
-    api.getAccounts(200)
+    api.getAccounts(200, mineFilter)
       .then(res => setAccounts(unwrap(res).map(normalizeAccount)))
       .catch(() => setAccounts([]))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, []);
+
+  const toggleMine = () => {
+    const next = !mine;
+    setMine(next);
+    load(next);
+  };
 
   const handleSave = () => {
     setModal(null);
@@ -207,6 +231,9 @@ export const AccountsView = ({ openDetail, addToast }) => {
         <button className={`filter-pill ${filter === 'partner'  ? 'active' : ''}`} onClick={() => setFilter('partner')}>
           Partner <span className="mono muted">{accounts.filter(a => a.type === 'partner').length}</span>
         </button>
+        <button className={`filter-pill ${mine ? 'active' : ''}`} onClick={toggleMine}>
+          My accounts
+        </button>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <Icon name="search" size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }} />
@@ -225,7 +252,13 @@ export const AccountsView = ({ openDetail, addToast }) => {
       {selected.size > 0 && (
         <div style={{ padding: '8px 16px', background: 'var(--accent-soft)', borderBottom: '1px solid var(--line)', display: 'flex', gap: 8, alignItems: 'center', fontSize: 12 }}>
           <span style={{ fontWeight: 600, color: 'var(--accent-ink)' }}>{selected.size} selected</span>
-          <button className="btn ghost sm">Export</button>
+          <button className="btn ghost sm" onClick={() => {
+            const rows = accounts.filter(a => selected.has(a.id));
+            const csv = ['Name,Type,Industry,Website,Owner\n', ...rows.map(a => `"${a.name}","${a.type || ''}","${a.industry || ''}","${a.domain || ''}","${a.owner || ''}"\n`)].join('');
+            const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            Object.assign(document.createElement('a'), { href: url, download: 'accounts.csv' }).click();
+            URL.revokeObjectURL(url);
+          }}>Export</button>
           <button className="btn ghost sm" style={{ color: 'var(--danger)' }} onClick={async () => {
             if (!window.confirm(`Delete ${selected.size} account(s)?`)) return;
             await Promise.allSettled([...selected].map(id => {
@@ -302,7 +335,7 @@ export const AccountsView = ({ openDetail, addToast }) => {
                         {(a.tags || []).map(t => <span className="tag" key={t}>{t}</span>)}
                       </div>
                     </td>
-                    <td><Avatar id={a.owner} size="sm" /></td>
+                    <td><Avatar ownerId={a.ownerId} membersById={membersById} size="sm" /></td>
                     <td className="mono muted" style={{ fontSize: 11 }}>{a.id}</td>
                     <td onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
@@ -340,6 +373,7 @@ export const AccountsView = ({ openDetail, addToast }) => {
       {modal && (
         <AccountModal
           account={modal === 'create' ? null : modal}
+          members={Object.values(membersById)}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

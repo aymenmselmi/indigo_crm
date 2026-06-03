@@ -111,6 +111,7 @@ export class DatabaseSwitcherService {
       DynamicEntity,
       DynamicField,
       Notification,
+      CustomFieldSchema,
     } = tenantEntities;
 
     const tenantDataSource = new DataSource({
@@ -134,6 +135,7 @@ export class DatabaseSwitcherService {
         DynamicEntity,
         DynamicField,
         Notification,
+        CustomFieldSchema,
       ],
       synchronize: process.env.NODE_ENV === 'development',
       logging: process.env.NODE_ENV === 'development',

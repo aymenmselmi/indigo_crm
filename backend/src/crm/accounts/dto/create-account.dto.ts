@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsEmail, Min, Max, IsNumber } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsEmail, Min, Max, IsNumber, IsUUID } from 'class-validator';
 
 export class CreateAccountDto {
   @IsString()
@@ -45,6 +45,10 @@ export class CreateAccountDto {
   @IsNumber()
   @Min(0)
   annualRevenue?: number;
+
+  @IsOptional()
+  @IsUUID()
+  ownerId?: string;
 
   @IsOptional()
   customFields?: Record<string, any>;

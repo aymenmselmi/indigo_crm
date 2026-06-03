@@ -17,7 +17,10 @@ import { BackOfficeView } from './pages/BackOffice';
 import { ManagerView } from './pages/ManagerView';
 import { DetailPanel } from './components/panels/DetailPanel';
 import { CommandPalette } from './components/shared/CommandPalette';
-import { QuickAdd, SimpleView } from './components/panels/QuickAdd';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
+import { QuickAdd } from './components/panels/QuickAdd';
+import { ReportsView } from './pages/Reports';
+import { CustomFieldsView } from './pages/CustomFields';
 import { Icon } from './components/UI/Icon';
 import { api } from './services/api';
 import Login from './pages/Login';
@@ -59,7 +62,9 @@ export default function App() {
   const [quickAddType, setQuickAddType] = useState(null);
   const [toasts, setToasts]   = useState([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [quickAddPrefill, setQuickAddPrefill] = useState({});
   const [user, setUser]       = useState(null);
+  const [membersById, setMembersById] = useState({});
   const [authChecked, setAuthChecked] = useState(false);
 
   // Public route state (register / accept-invite) — checked once on mount
@@ -70,7 +75,17 @@ export default function App() {
     const token = localStorage.getItem('accessToken');
     if (!token) { setAuthChecked(true); return; }
     api.me()
-      .then(u => { setUser(u); setAuthChecked(true); })
+      .then(u => {
+        setUser(u);
+        setAuthChecked(true);
+        api.listMembers().then(list => {
+          if (Array.isArray(list)) {
+            const map = {};
+            list.forEach(m => { map[m.id] = m; });
+            setMembersById(map);
+          }
+        }).catch(() => {});
+      })
       .catch(() => { localStorage.removeItem('accessToken'); setAuthChecked(true); });
   }, []);
 
@@ -111,9 +126,21 @@ export default function App() {
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 2400);
   };
 
+  const handleLogin = (u) => {
+    setUser(u);
+    api.listMembers().then(list => {
+      if (Array.isArray(list)) {
+        const map = {};
+        list.forEach(m => { map[m.id] = m; });
+        setMembersById(map);
+      }
+    }).catch(() => {});
+  };
+
   const logout = () => {
     localStorage.removeItem('accessToken');
     setUser(null);
+    setMembersById({});
   };
 
   // ── Loading ──────────────────────────────────────────────────────────────
@@ -128,32 +155,33 @@ export default function App() {
   // ── Public routes (accessible without login) ─────────────────────────────
   if (!user) {
     if (publicRoute?.name === 'accept-invite') {
-      return <AcceptInvite token={publicRoute.token} onLogin={setUser} />;
+      return <AcceptInvite token={publicRoute.token} onLogin={handleLogin} />;
     }
     if (authView === 'register' || publicRoute?.name === 'register') {
-      return <Register onLogin={setUser} onBack={() => setAuthView('login')} />;
+      return <Register onLogin={handleLogin} onBack={() => setAuthView('login')} />;
     }
-    return <Login onLogin={setUser} onRegister={() => setAuthView('register')} />;
+    return <Login onLogin={handleLogin} onRegister={() => setAuthView('register')} />;
   }
 
   // ── Main app ─────────────────────────────────────────────────────────────
   const renderView = () => {
     switch (view) {
-      case 'dashboard':  return <Dashboard openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} user={user} refreshKey={refreshKey} />;
-      case 'accounts':   return <AccountsView openDetail={setDetail} addToast={addToast} />;
-      case 'contacts':   return <ContactsView openDetail={setDetail} addToast={addToast} />;
-      case 'leads':      return <LeadsView addToast={addToast} />;
-      case 'opportunities': return <OpportunitiesView openDetail={setDetail} />;
-      case 'pipeline':   return <PipelineView openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} />;
+      case 'dashboard':  return <Dashboard openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} user={user} refreshKey={refreshKey} setView={setView} />;
+      case 'accounts':   return <AccountsView openDetail={setDetail} addToast={addToast} membersById={membersById} />;
+      case 'contacts':   return <ContactsView openDetail={setDetail} addToast={addToast} membersById={membersById} />;
+      case 'leads':      return <LeadsView addToast={addToast} membersById={membersById} />;
+      case 'opportunities': return <OpportunitiesView openDetail={setDetail} membersById={membersById} />;
+      case 'pipeline':   return <PipelineView openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} membersById={membersById} />;
       case 'activities': return <ActivitiesView openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} />;
-      case 'inbox':      return <InboxView />;
+      case 'inbox':      return <InboxView addToast={addToast} />;
       case 'mytasks':    return <TasksView openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} />;
       case 'analytics':  return <AnalyticsView />;
       case 'manager':    return <ManagerView addToast={addToast} />;
-      case 'members':    return <MembersView addToast={addToast} user={user} />;
-      case 'backoffice': return <BackOfficeView addToast={addToast} />;
-      case 'reports':    return <SimpleView title="Reports" sub="Saved & scheduled reports" hint="Build, save, and schedule reports. Export to CSV / Slack / email." />;
-      default:           return <Dashboard openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} user={user} refreshKey={refreshKey} />;
+      case 'members':      return <MembersView addToast={addToast} user={user} />;
+      case 'reports':      return <ReportsView />;
+      case 'customfields': return <CustomFieldsView addToast={addToast} />;
+      case 'backoffice':   return <BackOfficeView addToast={addToast} />;
+      default:           return <Dashboard openDetail={setDetail} addToast={addToast} openQuickAdd={(t) => { setQuickAddType(t || null); setShowAdd(true); }} user={user} refreshKey={refreshKey} setView={setView} />;
     }
   };
 
@@ -177,13 +205,15 @@ export default function App() {
           openDetail={setDetail}
         />
         <div className="page" key={view}>
-          {renderView()}
+          <ErrorBoundary key={view}>
+            {renderView()}
+          </ErrorBoundary>
         </div>
       </div>
 
-      {detail && <DetailPanel item={detail} onClose={() => setDetail(null)} />}
-      {showCmd && <CommandPalette onClose={() => setShowCmd(false)} setView={setView} openQuickAdd={() => setShowAdd(true)} />}
-      {showAdd && <QuickAdd onClose={() => { setShowAdd(false); setQuickAddType(null); }} onSaved={() => setRefreshKey(k => k + 1)} addToast={addToast} initialType={quickAddType} />}
+      {detail && <DetailPanel item={detail} onClose={() => setDetail(null)} openQuickAdd={(t, prefill = {}) => { setQuickAddType(t || null); setQuickAddPrefill(prefill); setShowAdd(true); }} addToast={addToast} onDeleted={() => { setDetail(null); setRefreshKey(k => k + 1); }} />}
+      {showCmd && <CommandPalette onClose={() => setShowCmd(false)} setView={setView} openQuickAdd={() => setShowAdd(true)} openDetail={setDetail} />}
+      {showAdd && <QuickAdd onClose={() => { setShowAdd(false); setQuickAddType(null); setQuickAddPrefill({}); }} onSaved={() => setRefreshKey(k => k + 1)} addToast={addToast} initialType={quickAddType} initialPrefill={quickAddPrefill} />}
 
       {toasts.length > 0 && (
         <div className="toast">

@@ -44,24 +44,24 @@ export class AccountService {
    * @param offset - Offset for pagination (default: 0)
    * @returns Array of accounts with total count
    */
-  async findAll(limit: number = 20, offset: number = 0) {
+  async findAll(limit: number = 20, offset: number = 0, ownerId?: string) {
     try {
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
-      
-      // Validate pagination params
+
       limit = Math.min(Math.max(limit, 1), 100);
       offset = Math.max(offset, 0);
 
-      this.logger.debug(`Fetching accounts for org ${orgId}: limit=${limit}, offset=${offset}`);
-
       const repo = await this.getRepository(dataSource);
-      const [accounts, total] = await repo
+      let qb = repo
         .createQueryBuilder('account')
         .orderBy('account.createdAt', 'DESC')
         .skip(offset)
-        .take(limit)
-        .getManyAndCount();
+        .take(limit);
+
+      if (ownerId) qb = qb.where('account.ownerId = :ownerId', { ownerId });
+
+      const [accounts, total] = await qb.getManyAndCount();
 
       return {
         data: accounts,
@@ -102,15 +102,15 @@ export class AccountService {
    * @param data - Account data
    * @returns Created account
    */
-  async create(data: Partial<Account>) {
+  async create(data: Partial<Account>, userId?: string) {
     try {
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
       const repo = await this.getRepository(dataSource);
-      // Automatically set tenantId to ensure data integrity
       const account = repo.create({
         ...data,
         tenantId: orgId,
+        ownerId: data.ownerId ?? userId,
       });
       
       this.logger.debug(`Creating account: ${JSON.stringify(account)}`);

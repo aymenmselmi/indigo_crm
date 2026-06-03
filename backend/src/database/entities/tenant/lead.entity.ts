@@ -43,6 +43,9 @@ export class Lead {
   @Column({ type: 'integer', default: 0 })
   leadScore: number;
 
+  @Column({ type: 'uuid', nullable: true })
+  ownerId: string;
+
   @Column({ type: 'json', nullable: true })
   customFields: Record<string, any>;
 

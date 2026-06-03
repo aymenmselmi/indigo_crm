@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Organization, GlobalUser, TenantConfig, Invitation } from './entities/master';
-import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, DynamicEntity, DynamicField, Notification } from './entities/tenant';
+import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, DynamicEntity, DynamicField, Notification, CustomFieldSchema } from './entities/tenant';
 
 @Module({
   imports: [
@@ -35,6 +35,7 @@ import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, 
           DynamicEntity,
           DynamicField,
           Notification,
+          CustomFieldSchema,
         ],
         synchronize: configService.get('NODE_ENV') === 'development',
         logging: configService.get('NODE_ENV') === 'development',
@@ -60,6 +61,7 @@ import { User, Role, Permission, Account, Contact, Lead, Opportunity, Activity, 
       DynamicEntity,
       DynamicField,
       Notification,
+      CustomFieldSchema,
     ]),
   ],
   exports: [TypeOrmModule],

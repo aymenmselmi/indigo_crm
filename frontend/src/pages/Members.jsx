@@ -81,6 +81,17 @@ export const MembersView = ({ addToast, user }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const removeMember = async (memberId, displayName) => {
+    if (!window.confirm(`Remove ${displayName} from the team? This cannot be undone.`)) return;
+    try {
+      await api.removeMember(memberId);
+      addToast && addToast(`${displayName} removed`);
+      loadMembers();
+    } catch (e) {
+      addToast && addToast(`Error: ${e.message}`);
+    }
+  };
+
   const changeRole = async (memberId, newRole) => {
     setUpdatingRole(memberId);
     try {
@@ -206,16 +217,26 @@ export const MembersView = ({ addToast, user }) => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {isAdmin && !isMe && m.role !== 'super_admin' ? (
-                    <select
-                      value={m.role}
-                      disabled={updatingRole === m.id}
-                      onChange={e => changeRole(m.id, e.target.value)}
-                      style={{ ...inp, width: 100, height: 28, fontSize: 12 }}
-                    >
-                      <option value="user">Member</option>
-                      <option value="manager">Manager</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                    <>
+                      <select
+                        value={m.role}
+                        disabled={updatingRole === m.id}
+                        onChange={e => changeRole(m.id, e.target.value)}
+                        style={{ ...inp, width: 100, height: 28, fontSize: 12 }}
+                      >
+                        <option value="user">Member</option>
+                        <option value="manager">Manager</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                      <button
+                        className="btn ghost sm"
+                        style={{ color: 'var(--danger)', height: 28, padding: '0 8px' }}
+                        onClick={() => removeMember(m.id, displayName)}
+                        title="Remove member"
+                      >
+                        Remove
+                      </button>
+                    </>
                   ) : (
                     m.role === 'super_admin' ? <Chip tone="danger">Super admin</Chip>
                     : m.role === 'admin'     ? <Chip tone="accent">Admin</Chip>

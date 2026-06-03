@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEmail, IsEnum, IsNumber, Min } from 'class-validator';
+import { IsString, IsOptional, IsEmail, IsEnum, IsNumber, Min, IsUUID } from 'class-validator';
 
 export class CreateLeadDto {
   @IsString()
@@ -44,6 +44,10 @@ export class CreateLeadDto {
   @IsNumber()
   @Min(0)
   leadScore?: number;
+
+  @IsOptional()
+  @IsUUID()
+  ownerId?: string;
 
   @IsOptional()
   customFields?: Record<string, any>;

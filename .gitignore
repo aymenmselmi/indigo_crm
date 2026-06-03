@@ -77,6 +77,9 @@ reset-db.js
 test-register*.ps1
 register-user.ps1
 
+# Claude Code local settings
+.claude/
+
 # AI / internal planning docs
 PHASE_3_KICKOFF.md
 PRODUCT_BACKLOG_AND_RELEASES.md

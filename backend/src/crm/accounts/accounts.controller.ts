@@ -11,6 +11,7 @@ import {
   Query,
   BadRequestException,
   ValidationPipe,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '@/rbac/guards/roles.guard';
@@ -45,6 +46,8 @@ export class AccountsController {
   async getAll(
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
+    @Query('mine') mine?: string,
+    @Req() req?: any,
   ) {
     try {
       const parsedLimit = limit ? parseInt(limit, 10) : 20;
@@ -54,11 +57,38 @@ export class AccountsController {
         throw new BadRequestException('limit and offset must be valid numbers');
       }
 
-      return this.accountService.findAll(parsedLimit, parsedOffset);
+      const ownerId = mine === 'true' ? req.user?.id : undefined;
+      return this.accountService.findAll(parsedLimit, parsedOffset, ownerId);
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
       throw new BadRequestException('Invalid pagination parameters');
     }
+  }
+
+  /**
+   * GET /accounts/search?query=name
+   * Search accounts by name (case-insensitive)
+   */
+  @Get('search')
+  @Roles('admin', 'manager', 'user')
+  async search(
+    @Query('query') query?: string,
+    @Query('limit') limit?: string,
+  ) {
+    if (!query || query.trim().length === 0) {
+      throw new BadRequestException('query parameter is required');
+    }
+    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 20;
+    return this.accountService.search(query.trim(), parsedLimit);
+  }
+
+  /**
+   * GET /accounts/stats/count
+   */
+  @Get('stats/count')
+  @Roles('admin', 'manager', 'user')
+  async getCount() {
+    return { count: await this.accountService.count() };
   }
 
   /**
@@ -138,9 +168,9 @@ export class AccountsController {
   @Post()
   @Roles('admin', 'manager', 'user')
   @HttpCode(201)
-  async create(@Body(new ValidationPipe()) createDto: CreateAccountDto) {
+  async create(@Body(new ValidationPipe()) createDto: CreateAccountDto, @Req() req: any) {
     try {
-      return await this.accountService.create(createDto);
+      return await this.accountService.create(createDto, req.user?.id);
     } catch (error) {
       if (error instanceof BadRequestException) throw error;
       throw new BadRequestException(`Failed to create account: ${error.message}`);
@@ -173,36 +203,4 @@ export class AccountsController {
     return this.accountService.delete(id);
   }
 
-  /**
-   * GET /accounts/search?query=name
-   * Search accounts by name (case-insensitive)
-   * 
-   * @query query - Search string (required)
-   * @query limit - Max results (default 20)
-   */
-  @Get('search')
-  @Roles('admin', 'manager', 'user')
-  async search(
-    @Query('query') query?: string,
-    @Query('limit') limit?: string,
-  ) {
-    if (!query || query.trim().length === 0) {
-      throw new BadRequestException('query parameter is required');
-    }
-
-    const parsedLimit = limit ? Math.min(parseInt(limit, 10), 100) : 20;
-    return this.accountService.search(query.trim(), parsedLimit);
-  }
-
-  /**
-   * GET /accounts/stats/count
-   * Get total account count for current tenant
-   */
-  @Get('stats/count')
-  @Roles('admin', 'manager', 'user')
-  async getCount() {
-    return {
-      count: await this.accountService.count(),
-    };
-  }
 }

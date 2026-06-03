@@ -106,6 +106,10 @@ export const Sidebar = ({ view, setView, openCmd, openQuickAdd, collapsed, user,
               <Icon name="users" size={15} />
               {!collapsed && <span>Members</span>}
             </div>
+            <div className={`nav-item ${view === 'customfields' ? 'active' : ''}`} onClick={() => setView('customfields')}>
+              <Icon name="gear" size={15} />
+              {!collapsed && <span>Custom fields</span>}
+            </div>
           </div>
         )}
 

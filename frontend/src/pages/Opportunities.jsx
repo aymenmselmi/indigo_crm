@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Icon } from '../components/UI/Icon';
 import { Chip, Avatar, fmtMoney } from '../components/UI/Primitives';
-import { STAGES } from '../data/seed';
+import { STAGES } from '../utils/stages';
 import { api, unwrap } from '../services/api';
 import { normalizeOpportunity } from '../utils/normalize';
 
@@ -29,7 +29,7 @@ const Field = ({ label, children }) => (
 
 const EMPTY = {
   name: '', stage: 'prospecting', amount: '', probability: '',
-  expectedCloseDate: '', accountId: '', description: '',
+  expectedCloseDate: '', accountId: '', description: '', ownerId: '',
 };
 
 const BACKEND_STAGES = [
@@ -41,7 +41,7 @@ const BACKEND_STAGES = [
   { value: 'closed-lost',  label: 'Closed-Lost'   },
 ];
 
-function DealModal({ deal, accounts, onSave, onClose }) {
+function DealModal({ deal, accounts, members, onSave, onClose }) {
   const editing = !!deal;
   const [form, setForm] = useState(deal ? {
     name:               deal.name,
@@ -51,6 +51,7 @@ function DealModal({ deal, accounts, onSave, onClose }) {
     expectedCloseDate:  deal._closeDate || '',
     accountId:          deal._accountId || '',
     description:        deal.description || '',
+    ownerId:            deal.ownerId    || '',
   } : { ...EMPTY });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
@@ -70,6 +71,7 @@ function DealModal({ deal, accounts, onSave, onClose }) {
         expectedCloseDate: form.expectedCloseDate || undefined,
         accountId:         form.accountId  || undefined,
         description:       form.description || undefined,
+        ownerId:           form.ownerId    || undefined,
       };
       if (editing) await api.updateOpportunity(deal._id, payload);
       else         await api.createOpportunity(payload);
@@ -118,14 +120,26 @@ function DealModal({ deal, accounts, onSave, onClose }) {
           <Field label="Expected close date">
             <input style={inp} type="date" value={form.expectedCloseDate} onChange={e => set('expectedCloseDate', e.target.value)} onFocus={focus} onBlur={blur} />
           </Field>
-          <Field label="Description">
-            <textarea
-              value={form.description} onChange={e => set('description', e.target.value)}
-              placeholder="Brief description…"
-              style={{ ...inp, height: 68, padding: '8px 10px', resize: 'vertical' }}
-              onFocus={focus} onBlur={blur}
-            />
-          </Field>
+          <Row>
+            <Field label="Owner">
+              <select style={inp} value={form.ownerId} onChange={e => set('ownerId', e.target.value)}>
+                <option value="">Assign to me (default)</option>
+                {(members || []).map(m => (
+                  <option key={m.id} value={m.id}>
+                    {[m.firstName, m.lastName].filter(Boolean).join(' ') || m.email}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Description">
+              <textarea
+                value={form.description} onChange={e => set('description', e.target.value)}
+                placeholder="Brief description…"
+                style={{ ...inp, height: 68, padding: '8px 10px', resize: 'vertical' }}
+                onFocus={focus} onBlur={blur}
+              />
+            </Field>
+          </Row>
 
           {error && (
             <div style={{ fontSize: 12, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -144,20 +158,21 @@ function DealModal({ deal, accounts, onSave, onClose }) {
   );
 }
 
-export const OpportunitiesView = ({ openDetail }) => {
+export const OpportunitiesView = ({ openDetail, membersById = {} }) => {
   const [deals, setDeals]     = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState('all');
+  const [mine, setMine]       = useState(false);
   const [search, setSearch]   = useState('');
   const [sortKey, setSortKey] = useState('amount');
   const [sortDir, setSortDir] = useState('desc');
   const [modal, setModal]     = useState(null);
 
-  const load = () => {
+  const load = (mineFilter = mine) => {
     setLoading(true);
     Promise.allSettled([
-      api.getOpportunities(200),
+      api.getOpportunities(200, mineFilter),
       api.getAccounts(200),
     ]).then(([oRes, aRes]) => {
       if (oRes.status === 'fulfilled') setDeals(unwrap(oRes.value).map(normalizeOpportunity));
@@ -221,6 +236,9 @@ export const OpportunitiesView = ({ openDetail }) => {
         </button>
         <button className={`filter-pill ${filter === 'won'  ? 'active' : ''}`} onClick={() => setFilter('won')}>
           Won <span className="mono muted">{deals.filter(d => d._rawStage === 'closed-won').length}</span>
+        </button>
+        <button className={`filter-pill ${mine ? 'active' : ''}`} onClick={() => { const n = !mine; setMine(n); load(n); }}>
+          My deals
         </button>
 
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -311,7 +329,7 @@ export const OpportunitiesView = ({ openDetail }) => {
                     </td>
                     <td className="mono muted" style={{ fontSize: 11.5 }}>{d.close}</td>
                     <td className="muted">{d.company}</td>
-                    <td><Avatar id={d.owner} size="sm" /></td>
+                    <td><Avatar ownerId={d.ownerId} membersById={membersById} size="sm" /></td>
                     <td className="mono muted" style={{ fontSize: 11 }}>{d.id}</td>
                     <td onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end' }}>
@@ -350,6 +368,7 @@ export const OpportunitiesView = ({ openDetail }) => {
         <DealModal
           deal={modal === 'create' ? null : modal}
           accounts={accounts}
+          members={Object.values(membersById)}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

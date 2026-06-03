@@ -7,10 +7,24 @@ export const fmtMoney = (n, opts = {}) => {
   return '$' + n.toLocaleString('en-US');
 };
 
-export const Avatar = ({ id, size = 'md', name }) => {
-  const initials = id || (name ? name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase() : '?');
-  const color = `oklch(0.6 0.14 ${(id || 'X').charCodeAt(0) * 7 % 360})`;
-  return <div className={`avatar ${size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : ''}`} style={{ background: color }} title={name || id}>{initials}</div>;
+export const Avatar = ({ id, ownerId, membersById, size = 'md', name }) => {
+  const member = ownerId && membersById ? membersById[ownerId] : null;
+  const displayName = member
+    ? [member.firstName, member.lastName].filter(Boolean).join(' ') || member.email
+    : name || null;
+
+  // No owner assigned
+  if (!ownerId && !id && !name) {
+    const cls = `avatar ${size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : ''}`;
+    return <div className={cls} style={{ background: 'var(--bg-sunken)', color: 'var(--ink-4)', border: '1px dashed var(--line)', fontSize: 10 }} title="Unassigned">—</div>;
+  }
+
+  const initials = displayName
+    ? displayName.split(' ').filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase()
+    : (id ? String(id).slice(0, 2).toUpperCase() : '?');
+  const colorKey = ownerId || id || 'X';
+  const color = `oklch(0.6 0.14 ${String(colorKey).charCodeAt(0) * 7 % 360})`;
+  return <div className={`avatar ${size === 'sm' ? 'sm' : size === 'lg' ? 'lg' : ''}`} style={{ background: color }} title={displayName || id}>{initials}</div>;
 };
 
 export const Chip = ({ children, tone = 'default', dot = false }) => {

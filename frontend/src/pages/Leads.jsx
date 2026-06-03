@@ -3,6 +3,7 @@ import { Icon } from '../components/UI/Icon';
 import { Chip, fmtMoney } from '../components/UI/Primitives';
 import { api, unwrap } from '../services/api';
 import { normalizeLead } from '../utils/normalize';
+import { useCustomFields, CustomFieldInputs } from '../components/shared/CustomFieldInputs';
 
 const STATUS_CHIP = {
   new:       <Chip>New</Chip>,
@@ -20,7 +21,7 @@ const SOURCE_LABEL = {
 const EMPTY_FORM = {
   firstName: '', lastName: '', email: '', phone: '',
   company: '', title: '', status: 'new', source: 'cold',
-  notes: '', estimatedValue: '', leadScore: '',
+  notes: '', estimatedValue: '', leadScore: '', ownerId: '',
 };
 
 const inp = {
@@ -40,16 +41,18 @@ const Field = ({ label, children }) => (
   </label>
 );
 
-function LeadModal({ lead, onSave, onClose }) {
+function LeadModal({ lead, members, onSave, onClose }) {
   const editing = !!lead;
   const [form, setForm]     = useState(lead ? {
     firstName: lead.firstName, lastName: lead.lastName, email: lead.email,
     phone: lead.phone, company: lead.company, title: lead.title,
     status: lead.status, source: lead.source, notes: lead.notes,
     estimatedValue: lead.estimatedValue || '', leadScore: lead.leadScore || '',
+    ownerId: lead.ownerId || '',
   } : { ...EMPTY_FORM });
   const [saving, setSaving] = useState(false);
   const [error, setError]   = useState('');
+  const { schemas: cfSchemas, cfValues, setCfValue, customFieldsPayload } = useCustomFields('lead', lead?.customFields);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -71,6 +74,8 @@ function LeadModal({ lead, onSave, onClose }) {
         notes:     form.notes     || undefined,
         estimatedValue: form.estimatedValue ? Number(form.estimatedValue) : undefined,
         leadScore:      form.leadScore      ? Number(form.leadScore)      : undefined,
+        ownerId:        form.ownerId        || undefined,
+        customFields:   customFieldsPayload,
       };
       if (editing) {
         await api.updateLead(lead._id, payload);
@@ -170,6 +175,16 @@ function LeadModal({ lead, onSave, onClose }) {
                 onBlur={e  => (e.target.style.borderColor = 'var(--line)')} />
             </Field>
           </Row>
+          <Field label="Owner">
+            <select style={inp} value={form.ownerId} onChange={e => set('ownerId', e.target.value)}>
+              <option value="">Assign to me (default)</option>
+              {(members || []).map(m => (
+                <option key={m.id} value={m.id}>
+                  {[m.firstName, m.lastName].filter(Boolean).join(' ') || m.email}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label="Notes">
             <textarea
               value={form.notes} onChange={e => set('notes', e.target.value)}
@@ -179,6 +194,8 @@ function LeadModal({ lead, onSave, onClose }) {
               onBlur={e  => (e.target.style.borderColor = 'var(--line)')}
             />
           </Field>
+
+          <CustomFieldInputs schemas={cfSchemas} values={cfValues} onChange={setCfValue} inp={inp} />
 
           {error && (
             <div style={{ fontSize: 12, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -239,18 +256,19 @@ function ConvertConfirm({ lead, onConfirm, onClose, converting }) {
   );
 }
 
-export const LeadsView = ({ addToast }) => {
+export const LeadsView = ({ addToast, membersById = {} }) => {
   const [leads, setLeads]       = useState([]);
   const [loading, setLoading]   = useState(true);
   const [filter, setFilter]     = useState('all');
+  const [mine, setMine]         = useState(false);
   const [search, setSearch]     = useState('');
-  const [modal, setModal]       = useState(null); // null | 'create' | lead object (edit)
-  const [converting, setConverting] = useState(null); // lead being confirmed
+  const [modal, setModal]       = useState(null);
+  const [converting, setConverting] = useState(null);
   const [convLoading, setConvLoading] = useState(false);
 
-  const load = () => {
+  const load = (mineFilter = mine) => {
     setLoading(true);
-    api.getLeads(200)
+    api.getLeads(200, mineFilter)
       .then(res => setLeads(unwrap(res).map(normalizeLead)))
       .catch(() => setLeads([]))
       .finally(() => setLoading(false));
@@ -312,6 +330,9 @@ export const LeadsView = ({ addToast }) => {
             {s === 'all' ? 'All' : s} <span className="mono muted">{counts[s]}</span>
           </button>
         ))}
+        <button className={`filter-pill ${mine ? 'active' : ''}`} onClick={() => { const n = !mine; setMine(n); load(n); }}>
+          My leads
+        </button>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center' }}>
           <div style={{ position: 'relative' }}>
             <Icon name="search" size={12} style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-3)' }} />
@@ -422,6 +443,7 @@ export const LeadsView = ({ addToast }) => {
       {modal && (
         <LeadModal
           lead={modal === 'create' ? null : modal}
+          members={Object.values(membersById)}
           onSave={handleSave}
           onClose={() => setModal(null)}
         />

@@ -6,6 +6,7 @@ import { Lead } from '@/database/entities/tenant/lead.entity';
 import { Account } from '@/database/entities/tenant/account.entity';
 import { Contact } from '@/database/entities/tenant/contact.entity';
 import { Opportunity } from '@/database/entities/tenant/opportunity.entity';
+import { NotificationsService } from '../notifications/notifications.service';
 
 /**
  * Lead Service - Multi-tenant aware
@@ -18,6 +19,7 @@ export class LeadService {
   constructor(
     private databaseSwitcher: DatabaseSwitcherService,
     private tenantContext: TenantContextService,
+    private notifications: NotificationsService,
   ) {}
 
   private getOrganizationId(): string {
@@ -32,21 +34,23 @@ export class LeadService {
     return dataSource.getRepository(Lead);
   }
 
-  async findAll(limit: number = 20, offset: number = 0) {
+  async findAll(limit: number = 20, offset: number = 0, ownerId?: string) {
     const orgId = this.getOrganizationId();
     const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
     const repo = await this.getRepository(dataSource);
-    
+
     limit = Math.min(Math.max(limit, 1), 100);
     offset = Math.max(offset, 0);
 
-    const [leads, total] = await repo
+    let qb = repo
       .createQueryBuilder('lead')
       .orderBy('lead.createdAt', 'DESC')
       .skip(offset)
-      .take(limit)
-      .getManyAndCount();
+      .take(limit);
 
+    if (ownerId) qb = qb.where('lead.ownerId = :ownerId', { ownerId });
+
+    const [leads, total] = await qb.getManyAndCount();
     return { data: leads, total, limit, offset, hasMore: offset + limit < total };
   }
 
@@ -63,7 +67,7 @@ export class LeadService {
     return lead;
   }
 
-  async create(data: Partial<Lead>) {
+  async create(data: Partial<Lead>, userId?: string) {
     try {
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
@@ -72,11 +76,25 @@ export class LeadService {
       const lead = repo.create({
         ...data,
         tenantId: orgId,
+        ownerId: data.ownerId ?? userId,
       });
       
       this.logger.debug(`Creating lead: ${JSON.stringify(lead)}`);
       const saved = await repo.save(lead);
       this.logger.debug(`Lead created successfully: ${saved.id}`);
+
+      // Notify owner when assigned by someone else
+      if (saved.ownerId && saved.ownerId !== userId) {
+        this.notifications.create({
+          userId: saved.ownerId,
+          type: 'lead_assigned',
+          title: 'Lead assigned to you',
+          body: `${saved.firstName} ${saved.lastName}${saved.company ? ` · ${saved.company}` : ''}`,
+          entityType: 'lead',
+          entityId: saved.id,
+        }).catch(() => {});
+      }
+
       return saved;
     } catch (error) {
       this.logger.error(`Error creating lead: ${error.message}`, error.stack);
@@ -84,9 +102,11 @@ export class LeadService {
     }
   }
 
-  async update(id: string, data: Partial<Lead>) {
+  async update(id: string, data: Partial<Lead>, actorId?: string) {
     try {
       const existing = await this.findById(id);
+      const prevOwner = existing.ownerId;
+
       const orgId = this.getOrganizationId();
       const dataSource = await this.databaseSwitcher.getDataSourceForOrganization(orgId);
       const repo = await this.getRepository(dataSource);
@@ -95,6 +115,19 @@ export class LeadService {
       this.logger.debug(`Updating lead ${id}: ${JSON.stringify(updated)}`);
       const saved = await repo.save(updated);
       this.logger.debug(`Lead updated successfully: ${saved.id}`);
+
+      // Owner changed — notify new owner
+      if (data.ownerId && data.ownerId !== prevOwner && data.ownerId !== actorId) {
+        this.notifications.create({
+          userId: data.ownerId,
+          type: 'lead_assigned',
+          title: 'Lead assigned to you',
+          body: `${saved.firstName} ${saved.lastName}${saved.company ? ` · ${saved.company}` : ''}`,
+          entityType: 'lead',
+          entityId: saved.id,
+        }).catch(() => {});
+      }
+
       return saved;
     } catch (error) {
       this.logger.error(`Error updating lead: ${error.message}`, error.stack);

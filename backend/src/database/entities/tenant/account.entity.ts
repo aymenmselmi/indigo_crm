@@ -44,6 +44,9 @@ export class Account {
   @Column({ type: 'decimal', precision: 15, scale: 2, default: 0 })
   annualRevenue: number;
 
+  @Column({ type: 'uuid', nullable: true })
+  ownerId: string;
+
   @Column({ type: 'json', nullable: true })
   customFields: Record<string, any>;
 

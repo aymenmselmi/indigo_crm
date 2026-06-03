@@ -39,5 +39,9 @@ export class CreateContactDto {
   accountId: string;
 
   @IsOptional()
+  @IsUUID()
+  ownerId?: string;
+
+  @IsOptional()
   customFields?: Record<string, any>;
 }

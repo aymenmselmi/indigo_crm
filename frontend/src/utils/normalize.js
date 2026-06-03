@@ -51,17 +51,19 @@ export function normalizeOpportunity(opp) {
     company:     opp.account?.name || '—',
     amount:      Number(opp.amount) || 0,
     stage:       STAGE_MAP[opp.stage] || 'lead',
-    owner:       shortId(opp.id),
+    owner:       opp.ownerId ? shortId(opp.ownerId) : shortId(opp.id),
+    ownerId:     opp.ownerId || null,
     prob:        Number(opp.probability) || 0,
     close:       closeStr,
     age:         ageDays(opp.createdAt),
     tags:        [],
     health:      'good',
     // raw fields preserved for edit modal
-    _rawStage:   opp.stage || 'prospecting',
-    _accountId:  opp.account?.id || '',
-    _closeDate:  opp.expectedCloseDate ? opp.expectedCloseDate.slice(0, 10) : '',
-    description: opp.description || '',
+    _rawStage:    opp.stage || 'prospecting',
+    _accountId:   opp.account?.id || '',
+    _closeDate:   opp.expectedCloseDate ? opp.expectedCloseDate.slice(0, 10) : '',
+    description:  opp.description || '',
+    customFields: opp.customFields || null,
   };
 }
 
@@ -74,7 +76,8 @@ export function normalizeAccount(acc) {
     type: acc.type || 'prospect',
     industry: acc.industry || '—',
     size: acc.employees ? `${acc.employees}` : '—',
-    owner: shortId(acc.id),
+    owner:   acc.ownerId ? shortId(acc.ownerId) : shortId(acc.id),
+    ownerId: acc.ownerId || null,
     tier: tierMap[acc.type] || 'SMB',
     mrr: Math.round(Number(acc.annualRevenue || 0) / 12),
     health: 'good',
@@ -82,6 +85,7 @@ export function normalizeAccount(acc) {
     domain: acc.website
       ? acc.website.replace(/^https?:\/\//, '').replace(/\/$/, '')
       : '',
+    customFields: acc.customFields || null,
   };
 }
 
@@ -110,7 +114,9 @@ export function normalizeContact(c) {
     phone:       c.phone || '',
     status:      c.status || 'active',
     last,
-    owner:       shortId(c.id),
+    owner:        c.ownerId ? shortId(c.ownerId) : shortId(c.id),
+    ownerId:      c.ownerId || null,
+    customFields: c.customFields || null,
   };
 }
 
@@ -151,6 +157,8 @@ export function normalizeLead(lead) {
     leadScore:      Number(lead.leadScore)      || 0,
     age:            ageDays(lead.createdAt),
     createdAt:      lead.createdAt,
+    ownerId:      lead.ownerId || null,
+    customFields: lead.customFields || null,
   };
 }
 

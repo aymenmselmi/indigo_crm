@@ -91,6 +91,14 @@ export class AuthController {
     return this.authService.listMembers(req.user.organizationId);
   }
 
+  @Delete('members/:id')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Remove a member from the organization (admin only)' })
+  async removeMember(@Param('id') id: string, @Request() req: any) {
+    return this.authService.removeMember(id, req.user.organizationId, req.user.sub);
+  }
+
   @Patch('members/:id/role')
   @UseGuards(AuthGuard('jwt'))
   @ApiBearerAuth()

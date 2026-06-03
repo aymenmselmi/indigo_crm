@@ -46,9 +46,10 @@ export const api = {
   // Members
   listMembers:      ()         => req('GET', '/auth/members'),
   updateMemberRole: (id, role) => req('PATCH', `/auth/members/${id}/role`, { role }),
+  removeMember:     (id)       => req('DELETE', `/auth/members/${id}`),
 
   // Accounts
-  getAccounts:            (limit = 50) => req('GET', `/accounts?limit=${limit}`),
+  getAccounts:            (limit = 50, mine = false) => req('GET', `/accounts?limit=${limit}${mine ? '&mine=true' : ''}`),
   createAccount:          (data)       => req('POST', '/accounts', data),
   updateAccount:          (id, data)   => req('PUT', `/accounts/${id}`, data),
   deleteAccount:          (id)         => req('DELETE', `/accounts/${id}`),
@@ -56,20 +57,21 @@ export const api = {
   getAccountContacts:     (id)         => req('GET', `/accounts/${id}/contacts`),
 
   // Contacts
-  getContacts:   (limit = 50) => req('GET', `/contacts?limit=${limit}`),
-  createContact: (data)       => req('POST', '/contacts', data),
-  updateContact: (id, data)   => req('PUT', `/contacts/${id}`, data),
-  deleteContact: (id)         => req('DELETE', `/contacts/${id}`),
+  getContacts:          (limit = 50, mine = false) => req('GET', `/contacts?limit=${limit}${mine ? '&mine=true' : ''}`),
+  createContact:        (data)       => req('POST', '/contacts', data),
+  updateContact:        (id, data)   => req('PUT', `/contacts/${id}`, data),
+  deleteContact:        (id)         => req('DELETE', `/contacts/${id}`),
+  getContactActivities: (id)         => req('GET', `/contacts/${id}/activities`),
 
   // Leads
-  getLeads:   (limit = 50) => req('GET', `/leads?limit=${limit}`),
+  getLeads:   (limit = 50, mine = false) => req('GET', `/leads?limit=${limit}${mine ? '&mine=true' : ''}`),
   createLead: (data)       => req('POST', '/leads', data),
   updateLead: (id, data)   => req('PUT', `/leads/${id}`, data),
   deleteLead: (id)         => req('DELETE', `/leads/${id}`),
   convertLead:(id)         => req('POST', `/leads/${id}/convert`),
 
   // Opportunities
-  getOpportunities:        (limit = 100) => req('GET', `/opportunities?limit=${limit}`),
+  getOpportunities:        (limit = 100, mine = false) => req('GET', `/opportunities?limit=${limit}${mine ? '&mine=true' : ''}`),
   createOpportunity:       (data)        => req('POST', '/opportunities', data),
   updateOpportunity:       (id, data)    => req('PUT', `/opportunities/${id}`, data),
   deleteOpportunity:       (id)          => req('DELETE', `/opportunities/${id}`),
@@ -102,6 +104,11 @@ export const api = {
   createTask: (data)       => req('POST', '/api/tasks', data),
   updateTask: (id, data)   => req('PUT', `/api/tasks/${id}`, data),
   deleteTask: (id)         => req('DELETE', `/api/tasks/${id}`),
+
+  // Custom field schemas
+  getCustomFieldSchemas:    (entity)       => req('GET', `/custom-fields${entity ? `?entity=${entity}` : ''}`),
+  createCustomFieldSchema:  (data)         => req('POST', '/custom-fields', data),
+  deleteCustomFieldSchema:  (id)           => req('DELETE', `/custom-fields/${id}`),
 };
 
 export function unwrap(res) {

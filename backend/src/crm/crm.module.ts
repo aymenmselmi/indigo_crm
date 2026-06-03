@@ -6,6 +6,7 @@ import { OpportunitiesModule } from './opportunities/opportunities.module';
 import { ActivitiesModule } from './activities/activities.module';
 import { TasksModule } from './tasks/tasks.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { CustomFieldsModule } from './custom-fields/custom-fields.module';
 
 /**
  * CRM Module
@@ -26,6 +27,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ActivitiesModule,
     TasksModule,
     NotificationsModule,
+    CustomFieldsModule,
   ],
   exports: [
     AccountsModule,
@@ -35,6 +37,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ActivitiesModule,
     TasksModule,
     NotificationsModule,
+    CustomFieldsModule,
   ],
 })
 export class CrmModule {}

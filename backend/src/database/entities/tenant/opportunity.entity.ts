@@ -42,6 +42,9 @@ export class Opportunity {
   @Column({ type: 'varchar', length: 50, default: 'open' })
   status: 'open' | 'closed-won' | 'closed-lost';
 
+  @Column({ type: 'uuid', nullable: true })
+  ownerId: string;
+
   @Column({ type: 'json', nullable: true })
   customFields: Record<string, any>;
 
